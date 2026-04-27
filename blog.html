@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Immigration Blog — CanadaPathway</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0d1b2a;--navy-mid:#162235;--red:#d42b2b;--red-light:#e84040;--gold:#c8922a;--gold-light:#e8b052;--cream:#f5f0e8;--cream-dim:#a0a8b4;--white:#fff;--text-muted:#8a9ab0;--border:rgba(255,255,255,0.08)}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--cream);line-height:1.6;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);text-decoration:none}.logo span{color:var(--red)}
+.nav-back{color:var(--text-muted);text-decoration:none;font-size:0.875rem;transition:color 0.2s}.nav-back:hover{color:var(--cream)}
+
+.page-header{padding:100px 5% 3rem;max-width:1100px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.header-left{}
+.page-eyebrow{font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:1rem}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:0.75rem;letter-spacing:-0.02em}
+.page-sub{color:var(--text-muted);font-size:1rem;line-height:1.7;max-width:500px}
+
+.search-bar{display:flex;gap:0.5rem}
+.search-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--cream);padding:0.75rem 1rem;font-size:0.875rem;font-family:'DM Sans',sans-serif;outline:none;width:260px;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:rgba(138,154,176,0.5)}
+.search-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:0.75rem 1.25rem;font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+.main{max-width:1100px;margin:0 auto;padding:0 5% 5rem}
+
+/* CATEGORIES */
+.cats{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2.5rem}
+.cat{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:20px;padding:0.4rem 1rem;font-size:0.78rem;font-weight:500;cursor:pointer;color:var(--text-muted);transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.cat:hover{border-color:rgba(200,146,42,0.3);color:var(--cream)}
+.cat.active{background:rgba(212,43,43,0.12);border-color:var(--red);color:var(--cream)}
+
+/* FEATURED */
+.featured-article{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--navy-mid);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:2.5rem;cursor:pointer;transition:border-color 0.2s;text-decoration:none;color:inherit}
+.featured-article:hover{border-color:rgba(200,146,42,0.3)}
+.featured-img{background:linear-gradient(135deg,rgba(212,43,43,0.15),rgba(200,146,42,0.1));display:flex;align-items:center;justify-content:center;min-height:280px;position:relative;overflow:hidden}
+.featured-img-art{font-size:5rem;opacity:0.4}
+.featured-img-label{position:absolute;top:1.25rem;left:1.25rem;background:var(--red);color:white;padding:0.3rem 0.875rem;border-radius:3px;font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase}
+.featured-content{padding:2.5rem}
+.art-meta{display:flex;gap:1rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap}
+.art-cat{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--red)}
+.art-date{font-size:0.78rem;color:var(--text-muted)}
+.art-read{font-size:0.78rem;color:var(--text-muted)}
+.featured-content h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:0.875rem}
+.featured-content p{font-size:0.9rem;color:var(--text-muted);line-height:1.7;margin-bottom:1.5rem}
+.art-tags{display:flex;gap:0.5rem;flex-wrap:wrap}
+.art-tag{padding:0.2rem 0.625rem;border-radius:3px;font-size:0.7rem;font-weight:500;background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border)}
+
+/* GRID */
+.articles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:3rem}
+.article-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.2s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.article-card:hover{border-color:rgba(200,146,42,0.3);transform:translateY(-2px)}
+.card-img{height:140px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
+.card-img.c-red{background:linear-gradient(135deg,rgba(212,43,43,0.15),rgba(212,43,43,0.05))}
+.card-img.c-blue{background:linear-gradient(135deg,rgba(96,165,250,0.12),rgba(96,165,250,0.04))}
+.card-img.c-green{background:linear-gradient(135deg,rgba(46,204,113,0.12),rgba(46,204,113,0.04))}
+.card-img.c-purple{background:linear-gradient(135deg,rgba(192,132,252,0.12),rgba(192,132,252,0.04))}
+.card-img.c-orange{background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(249,115,22,0.04))}
+.card-img.c-gold{background:linear-gradient(135deg,rgba(200,146,42,0.15),rgba(200,146,42,0.05))}
+.card-badge{position:absolute;top:0.75rem;left:0.75rem;background:rgba(13,27,42,0.8);padding:0.2rem 0.625rem;border-radius:3px;font-size:0.68rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--cream-dim)}
+.card-body{padding:1.25rem;flex:1;display:flex;flex-direction:column}
+.card-meta{display:flex;gap:0.75rem;align-items:center;margin-bottom:0.75rem}
+.card-cat{font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--red)}
+.card-date{font-size:0.72rem;color:var(--text-muted)}
+.card-body h3{font-size:0.975rem;font-weight:600;color:var(--white);line-height:1.35;margin-bottom:0.6rem}
+.card-body p{font-size:0.8rem;color:var(--text-muted);line-height:1.55;flex:1}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:0.875rem;border-top:1px solid var(--border)}
+.read-time{font-size:0.72rem;color:var(--text-muted)}
+.read-more{font-size:0.78rem;color:var(--gold-light);font-weight:500}
+
+/* SIDEBAR LAYOUT */
+.content-sidebar{display:grid;grid-template-columns:1fr 300px;gap:2rem;margin-top:1rem}
+.sidebar{}
+.sidebar-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-bottom:1.25rem}
+.sidebar-title{font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)}
+.popular-list{display:flex;flex-direction:column;gap:1rem}
+.popular-item{display:flex;gap:0.875rem;align-items:flex-start;cursor:pointer}
+.popular-num{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:rgba(200,146,42,0.4);flex-shrink:0;line-height:1.2}
+.popular-item h4{font-size:0.85rem;font-weight:500;color:var(--cream);line-height:1.35;margin-bottom:0.2rem}
+.popular-item span{font-size:0.72rem;color:var(--text-muted)}
+
+.newsletter-sidebar{background:rgba(212,43,43,0.07);border:1px solid rgba(212,43,43,0.2)}
+.newsletter-sidebar p{font-size:0.83rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.55}
+.ns-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--cream);padding:0.65rem 0.875rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;width:100%;margin-bottom:0.625rem;transition:border-color 0.2s}
+.ns-input:focus{border-color:var(--gold)}
+.ns-input::placeholder{color:rgba(138,154,176,0.5)}
+.ns-btn{background:var(--red);color:white;border:none;border-radius:6px;padding:0.65rem;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:background 0.2s}
+.ns-btn:hover{background:var(--red-light)}
+
+.load-more{display:block;width:100%;background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:0.875rem;border-radius:8px;font-size:0.875rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center;margin-top:1.5rem}
+.load-more:hover{border-color:rgba(200,146,42,0.3);color:var(--cream)}
+
+@media(max-width:900px){.featured-article{grid-template-columns:1fr}.featured-img{min-height:160px}.articles-grid{grid-template-columns:1fr 1fr}.content-sidebar{grid-template-columns:1fr}}
+@media(max-width:600px){.articles-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Canada<span>Pathway</span></a>
+  <a href="index.html" class="nav-back">← Home</a>
+</nav>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="page-eyebrow">Immigration Intelligence</div>
+    <h1>The Canada Immigration Blog</h1>
+    <p class="page-sub">Draw analysis, policy updates, PNP stream openings, and strategy guides — written for applicants, not lawyers.</p>
+  </div>
+  <div class="search-bar">
+    <input class="search-input" placeholder="Search articles..." type="text">
+    <button class="search-btn">Search</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- CATEGORIES -->
+  <div class="cats">
+    <button class="cat active">All</button>
+    <button class="cat">Express Entry</button>
+    <button class="cat">PNP</button>
+    <button class="cat">Draw Analysis</button>
+    <button class="cat">Language Tests</button>
+    <button class="cat">Policy Updates</button>
+    <button class="cat">Spouse & Family</button>
+    <button class="cat">Work Permits</button>
+    <button class="cat">Study → PR</button>
+  </div>
+
+  <!-- FEATURED -->
+  <a href="#" class="featured-article">
+    <div class="featured-img">
+      <div class="featured-img-art">🍁</div>
+      <div class="featured-img-label">Featured</div>
+    </div>
+    <div class="featured-content">
+      <div class="art-meta">
+        <span class="art-cat">Draw Analysis</span>
+        <span class="art-date">January 22, 2025</span>
+        <span class="art-read">8 min read</span>
+      </div>
+      <h2>Why Express Entry Cutoffs Will Drop in 2025 — And How to Position Your Profile Now</h2>
+      <p>IRCC's 2025 immigration levels plan targets 395,000 new permanent residents — a reduction from 2024 targets. But the composition shift toward category-based draws and French-language selection means applicants with specialist profiles will see lower effective cutoffs than the headline number suggests. Here's the data-backed breakdown.</p>
+      <div class="art-tags">
+        <span class="art-tag">Express Entry</span>
+        <span class="art-tag">CRS Strategy</span>
+        <span class="art-tag">2025 Outlook</span>
+        <span class="art-tag">Category-based draws</span>
+      </div>
+    </div>
+  </a>
+
+  <div class="content-sidebar">
+    <div>
+      <!-- ARTICLES GRID -->
+      <div class="articles-grid">
+
+        <a href="#" class="article-card">
+          <div class="card-img c-blue"><span>📊</span><div class="card-badge">Draw Analysis</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Draw Analysis</span><span class="card-date">Jan 15, 2025</span></div>
+            <h3>Draw #297: 7,000 French-Language Invitations at CRS 379 — What It Means</h3>
+            <p>IRCC issued one of its largest-ever French-language draws. We break down who qualified, what the pool looked like, and whether this trend continues.</p>
+            <div class="card-footer"><span class="read-time">5 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-green"><span>🏛️</span><div class="card-badge">PNP</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">PNP</span><span class="card-date">Jan 12, 2025</span></div>
+            <h3>BC PNP Tech Pilot 2025: Which NOC Codes Are Eligible and How Fast Is Processing</h3>
+            <p>The BC PNP Tech stream processes nominations in as little as 2 weeks. We list all eligible NOCs and outline the exact job offer requirements employers must meet.</p>
+            <div class="card-footer"><span class="read-time">7 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-purple"><span>🎓</span><div class="card-badge">Study → PR</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Study → PR</span><span class="card-date">Jan 8, 2025</span></div>
+            <h3>Post-Graduation Work Permit 2025: Changes to Eligibility and What International Graduates Must Know</h3>
+            <p>New rules cap PGWP duration based on program length. Here's exactly how the new rules work and which programs still qualify for a 3-year permit.</p>
+            <div class="card-footer"><span class="read-time">9 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-orange"><span>🏥</span><div class="card-badge">Policy</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Policy Updates</span><span class="card-date">Jan 5, 2025</span></div>
+            <h3>Healthcare Workers: How to Use the Federal Healthcare Category Draw to Bypass a High CRS Score</h3>
+            <p>Healthcare-category draws have cleared at 410–425 — nearly 100 points below general draws. We explain which NOC codes qualify and what IRCC considers a healthcare occupation.</p>
+            <div class="card-footer"><span class="read-time">6 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-gold"><span>📋</span><div class="card-badge">Express Entry</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Express Entry</span><span class="card-date">Dec 30, 2024</span></div>
+            <h3>The Complete ECA Guide: Which Evaluation Body to Use for Your Degree</h3>
+            <p>WES, ICAS, IQAS — picking the wrong ECA body delays your application. We map credential types to the correct designated body and explain the fastest processing options.</p>
+            <div class="card-footer"><span class="read-time">10 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-red"><span>💬</span><div class="card-badge">Language</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Language Tests</span><span class="card-date">Dec 23, 2024</span></div>
+            <h3>IELTS vs CELPIP 2025: Which Test Gives You a Higher CLB Score for the Same English Level</h3>
+            <p>The two tests are not equivalent in practice for many test-takers. Based on thousands of applicant scores, CELPIP tends to score higher for Canadian-resident applicants — here's why.</p>
+            <div class="card-footer"><span class="read-time">7 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-blue"><span>👥</span><div class="card-badge">Family</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Spouse & Family</span><span class="card-date">Dec 18, 2024</span></div>
+            <h3>Spousal Sponsorship Processing Times 2025: Inland vs Outland — The Real Numbers</h3>
+            <p>IRCC targets 12 months for spousal applications but real-world times vary significantly by visa office and application type. We publish current averages by office.</p>
+            <div class="card-footer"><span class="read-time">5 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-green"><span>🔧</span><div class="card-badge">PNP</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">PNP</span><span class="card-date">Dec 15, 2024</span></div>
+            <h3>Manitoba PNP in 2025: Why It's the Most Accessible PNP for Applicants Under 400 CRS</h3>
+            <p>MPNP operates a points-based system independent of CRS. With a Manitoba connection or job offer, applicants scoring below 400 CRS routinely receive nominations. We explain the full scoring grid.</p>
+            <div class="card-footer"><span class="read-time">8 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+        <a href="#" class="article-card">
+          <div class="card-img c-purple"><span>⚖️</span><div class="card-badge">Policy</div></div>
+          <div class="card-body">
+            <div class="card-meta"><span class="card-cat">Policy Updates</span><span class="card-date">Dec 10, 2024</span></div>
+            <h3>Canada's 2025–2027 Immigration Levels Plan: What the Reduced Targets Mean for Express Entry Wait Times</h3>
+            <p>IRCC's reduction from 485K (2024) to 395K (2025) will change draw frequency and cutoff dynamics. We model three scenarios for what applicants can expect.</p>
+            <div class="card-footer"><span class="read-time">11 min read</span><span class="read-more">Read →</span></div>
+          </div>
+        </a>
+
+      </div>
+
+      <button class="load-more">Load more articles</button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-card newsletter-sidebar">
+        <div class="sidebar-title">Draw Alerts</div>
+        <p>Get notified within 30 minutes of every new Express Entry draw with full breakdown.</p>
+        <input class="ns-input" placeholder="your@email.com" type="email">
+        <button class="ns-btn">Subscribe — Free</button>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">Most Read This Month</div>
+        <div class="popular-list">
+          <div class="popular-item">
+            <span class="popular-num">01</span>
+            <div><h4>How to Improve Your CRS Score by 50+ Points in 6 Months</h4><span>14.2k reads</span></div>
+          </div>
+          <div class="popular-item">
+            <span class="popular-num">02</span>
+            <div><h4>PNP vs Express Entry: Which Path Is Faster for Your Profile</h4><span>11.8k reads</span></div>
+          </div>
+          <div class="popular-item">
+            <span class="popular-num">03</span>
+            <div><h4>French Language Draw Guide: Everything You Need to Know</h4><span>9.4k reads</span></div>
+          </div>
+          <div class="popular-item">
+            <span class="popular-num">04</span>
+            <div><h4>NOC TEER: The Complete Guide to Finding Your Correct NOC Code</h4><span>8.1k reads</span></div>
+          </div>
+          <div class="popular-item">
+            <span class="popular-num">05</span>
+            <div><h4>LMIA Explained: What Employers and Workers Need to Know</h4><span>6.7k reads</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">Free Tools</div>
+        <div style="display:flex;flex-direction:column;gap:0.625rem">
+          <a href="crs-calculator.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--cream);transition:border-color 0.2s" onmouseover="this.style.borderColor='rgba(200,146,42,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.1rem">📊</span>
+            <div><div style="font-size:0.85rem;font-weight:500">CRS Score Calculator</div><div style="font-size:0.72rem;color:var(--text-muted)">Full IRCC formula</div></div>
+          </a>
+          <a href="pnp-matcher.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--cream);transition:border-color 0.2s" onmouseover="this.style.borderColor='rgba(200,146,42,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.1rem">🗺️</span>
+            <div><div style="font-size:0.85rem;font-weight:500">PNP Eligibility Matcher</div><div style="font-size:0.72rem;color:var(--text-muted)">8-question quiz</div></div>
+          </a>
+          <a href="draws.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--cream);transition:border-color 0.2s" onmouseover="this.style.borderColor='rgba(200,146,42,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.1rem">📈</span>
+            <div><div style="font-size:0.85rem;font-weight:500">Draw History Chart</div><div style="font-size:0.72rem;color:var(--text-muted)">All draws since 2015</div></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.cat').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

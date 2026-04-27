@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PNP Eligibility Matcher — CanadaPathway</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0d1b2a;--navy-mid:#162235;--navy-light:#1e3050;--red:#d42b2b;--red-light:#e84040;--gold:#c8922a;--gold-light:#e8b052;--cream:#f5f0e8;--cream-dim:#a0a8b4;--white:#ffffff;--text-muted:#8a9ab0;--border:rgba(255,255,255,0.08)}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--cream);line-height:1.6;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);text-decoration:none}.logo span{color:var(--red)}
+.nav-back{color:var(--text-muted);text-decoration:none;font-size:0.875rem;transition:color 0.2s}.nav-back:hover{color:var(--cream)}
+
+.page-header{padding:100px 5% 3rem;text-align:center;max-width:680px;margin:0 auto}
+.page-eyebrow{font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:1rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:1rem;letter-spacing:-0.02em}
+.page-header p{color:var(--text-muted);font-size:1rem;line-height:1.7}
+
+.quiz-wrapper{max-width:780px;margin:0 auto;padding:0 5% 5rem}
+
+/* PROGRESS */
+.quiz-progress{margin-bottom:2.5rem}
+.progress-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:0.75rem}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:2px;transition:width 0.4s ease}
+.progress-label{font-size:0.78rem;color:var(--text-muted);text-align:right}
+
+/* QUESTION */
+.question-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:14px;padding:2.5rem;display:none;animation:fadeIn 0.3s ease}
+.question-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.q-number{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:0.75rem}
+.q-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:600;color:var(--white);margin-bottom:0.5rem}
+.q-desc{font-size:0.875rem;color:var(--text-muted);margin-bottom:2rem;line-height:1.6}
+
+.opts{display:grid;gap:0.6rem}
+.opts.cols2{grid-template-columns:1fr 1fr}
+.opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;cursor:pointer;text-align:left;transition:all 0.2s;color:var(--cream);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:0.875rem}
+.opt:hover{border-color:rgba(200,146,42,0.35);background:rgba(200,146,42,0.04)}
+.opt.sel{border-color:var(--gold);background:rgba(200,146,42,0.08)}
+.opt-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;transition:all 0.2s;position:relative}
+.opt.sel .opt-radio{border-color:var(--gold);background:var(--gold)}
+.opt.sel .opt-radio::after{content:'';position:absolute;width:6px;height:6px;background:white;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+.opt-text h4{font-size:0.9rem;font-weight:500;color:var(--white);margin-bottom:0.1rem}
+.opt-text p{font-size:0.75rem;color:var(--text-muted)}
+
+.q-nav{display:flex;justify-content:space-between;margin-top:2rem}
+.btn-back{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:0.7rem 1.25rem;border-radius:6px;font-size:0.875rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-back:hover{border-color:rgba(255,255,255,0.2);color:var(--cream)}
+.btn-next{background:var(--red);color:white;padding:0.7rem 1.75rem;border:none;border-radius:6px;font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
+.btn-next:hover{background:var(--red-light)}
+.btn-next:disabled{background:rgba(138,154,176,0.15);color:var(--text-muted);cursor:not-allowed}
+
+/* RESULTS */
+.results-wrap{display:none}
+.results-wrap.active{display:block;animation:fadeIn 0.4s ease}
+.results-header{text-align:center;margin-bottom:3rem}
+.results-header h2{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--white);margin-bottom:0.75rem}
+.results-header p{color:var(--text-muted)}
+.match-count{display:inline-block;background:rgba(200,146,42,0.1);border:1px solid rgba(200,146,42,0.2);padding:0.4rem 1.25rem;border-radius:20px;font-size:0.85rem;color:var(--gold-light);font-weight:600;margin-top:0.75rem}
+
+.streams-grid{display:flex;flex-direction:column;gap:1rem;margin-bottom:3rem}
+
+.stream-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color 0.2s}
+.stream-card.top-match{border-color:rgba(46,204,113,0.35);background:rgba(46,204,113,0.03)}
+.stream-card.good-match{border-color:rgba(200,146,42,0.25)}
+.stream-card.possible{border-color:var(--border)}
+
+.stream-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.stream-name{font-size:1.05rem;font-weight:600;color:var(--white);margin-bottom:0.25rem}
+.stream-province{font-size:0.78rem;color:var(--text-muted)}
+.match-badge{padding:0.3rem 0.875rem;border-radius:20px;font-size:0.72rem;font-weight:600;white-space:nowrap;flex-shrink:0}
+.badge-top{background:rgba(46,204,113,0.15);color:#2ecc71}
+.badge-good{background:rgba(200,146,42,0.15);color:var(--gold-light)}
+.badge-possible{background:rgba(138,154,176,0.12);color:var(--text-muted)}
+
+.stream-meta{display:flex;gap:2rem;margin-bottom:1rem;flex-wrap:wrap}
+.stream-meta-item{display:flex;flex-direction:column;gap:0.15rem}
+.meta-label{font-size:0.68rem;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase}
+.meta-value{font-size:0.875rem;font-weight:500;color:var(--cream)}
+
+.stream-requirements{display:flex;flex-direction:column;gap:0.35rem}
+.req-item{display:flex;align-items:center;gap:0.6rem;font-size:0.82rem}
+.req-item.met{color:#4dca60}.req-item.unmet{color:#e84040}.req-item.partial{color:var(--gold-light)}
+.req-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.met .req-dot{background:#4dca60}.unmet .req-dot{background:#e84040}.partial .req-dot{background:var(--gold-light)}
+
+.results-actions{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{background:var(--red);color:white;padding:0.875rem 2rem;border:none;border-radius:6px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;transition:background 0.2s}.btn-primary:hover{background:var(--red-light)}
+.btn-outline{background:transparent;color:var(--cream);padding:0.875rem 2rem;border:1px solid rgba(255,255,255,0.2);border-radius:6px;font-size:0.9rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;transition:all 0.2s}.btn-outline:hover{border-color:var(--gold-light);color:var(--gold-light)}
+
+.no-match-notice{background:rgba(212,43,43,0.07);border:1px solid rgba(212,43,43,0.2);border-radius:10px;padding:1.5rem;margin-bottom:2rem;font-size:0.9rem;color:var(--cream);line-height:1.6}
+
+@media(max-width:600px){.opts.cols2{grid-template-columns:1fr}.stream-meta{gap:1rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Canada<span>Pathway</span></a>
+  <a href="index.html" class="nav-back">← Home</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-eyebrow">Free Tool</div>
+  <h1>PNP Eligibility Matcher</h1>
+  <p>Answer 8 questions about your profile. We match you to provincial streams where your profile meets the published eligibility criteria.</p>
+</div>
+
+<div class="quiz-wrapper">
+  <div class="quiz-progress">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:12.5%"></div></div>
+    <div class="progress-label" id="progressLabel">Question 1 of 8</div>
+  </div>
+
+  <!-- Q1: Province Preference -->
+  <div class="question-card active" id="q1">
+    <div class="q-number">Question 1 of 8</div>
+    <div class="q-title">Do you have a preference for province?</div>
+    <div class="q-desc">Provincial streams are province-specific. Having a connection (past study, job offer, family) to a province strengthens your application.</div>
+    <div class="opts cols2">
+      <div class="opt" onclick="selectQ(this,'province','any')"><div class="opt-radio"></div><div class="opt-text"><h4>Open to any province</h4><p>Will consider all matching streams</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','ON')"><div class="opt-radio"></div><div class="opt-text"><h4>Ontario</h4><p>OINP — largest PNP by volume</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','BC')"><div class="opt-radio"></div><div class="opt-text"><h4>British Columbia</h4><p>BC PNP — strong tech & trades streams</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','AB')"><div class="opt-radio"></div><div class="opt-text"><h4>Alberta</h4><p>AINP — energy, engineering focus</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','MB')"><div class="opt-radio"></div><div class="opt-text"><h4>Manitoba</h4><p>MPNP — one of the easiest PNPs to access</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','SK')"><div class="opt-radio"></div><div class="opt-text"><h4>Saskatchewan</h4><p>SINP — growing economy, low cutoffs</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','NS')"><div class="opt-radio"></div><div class="opt-text"><h4>Nova Scotia / Atlantic</h4><p>AIP + NSNP — Atlantic priority programs</p></div></div>
+      <div class="opt" onclick="selectQ(this,'province','other')"><div class="opt-radio"></div><div class="opt-text"><h4>Quebec / Territories</h4><p>Quebec has its own separate immigration system</p></div></div>
+    </div>
+    <div class="q-nav"><span></span><button class="btn-next" id="nq1" disabled onclick="nextQ(2)">Next →</button></div>
+  </div>
+
+  <!-- Q2: Occupation -->
+  <div class="question-card" id="q2">
+    <div class="q-number">Question 2 of 8</div>
+    <div class="q-title">What is your occupation category?</div>
+    <div class="q-desc">Based on Canada's NOC TEER classification. If unsure, pick your closest match — you can verify your exact NOC code with our NOC lookup tool.</div>
+    <div class="opts">
+      <div class="opt" onclick="selectQ(this,'noc','tech')"><div class="opt-radio"></div><div class="opt-text"><h4>Technology & IT (TEER 1–2)</h4><p>Software developers, data scientists, cybersecurity, IT managers</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','health')"><div class="opt-radio"></div><div class="opt-text"><h4>Healthcare (TEER 1–3)</h4><p>Nurses, physicians, pharmacists, medical technologists, PSWs</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','trades')"><div class="opt-radio"></div><div class="opt-text"><h4>Skilled Trades (TEER 2–3)</h4><p>Electricians, welders, plumbers, HVAC, construction supervisors</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','business')"><div class="opt-radio"></div><div class="opt-text"><h4>Business & Finance (TEER 1–2)</h4><p>Accountants, financial analysts, HR managers, project managers</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','engineering')"><div class="opt-radio"></div><div class="opt-text"><h4>Engineering & Natural Sciences (TEER 1–2)</h4><p>Civil, mechanical, electrical engineers, geologists</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','education')"><div class="opt-radio"></div><div class="opt-text"><h4>Education & Social Work (TEER 1–3)</h4><p>Teachers, social workers, counsellors, ECE workers</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','other_teer12')"><div class="opt-radio"></div><div class="opt-text"><h4>Other skilled occupation (TEER 1–2)</h4><p>Any professional or technical role not listed above</p></div></div>
+      <div class="opt" onclick="selectQ(this,'noc','teer3')"><div class="opt-radio"></div><div class="opt-text"><h4>Semi-skilled (TEER 3–4)</h4><p>Retail supervisors, food service managers, administrative roles</p></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(1)">← Back</button><button class="btn-next" id="nq2" disabled onclick="nextQ(3)">Next →</button></div>
+  </div>
+
+  <!-- Q3: Education -->
+  <div class="question-card" id="q3">
+    <div class="q-number">Question 3 of 8</div>
+    <div class="q-title">Highest education level completed</div>
+    <div class="q-desc">If degree is from outside Canada, an Educational Credential Assessment (ECA) from a designated body is required for most provincial streams.</div>
+    <div class="opts cols2">
+      <div class="opt" onclick="selectQ(this,'edu','phd')"><div class="opt-radio"></div><div class="opt-text"><h4>PhD / Doctorate</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'edu','masters')"><div class="opt-radio"></div><div class="opt-text"><h4>Master's degree</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'edu','bachelor')"><div class="opt-radio"></div><div class="opt-text"><h4>Bachelor's degree</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'edu','diploma2')"><div class="opt-radio"></div><div class="opt-text"><h4>2-year post-secondary diploma</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'edu','diploma1')"><div class="opt-radio"></div><div class="opt-text"><h4>1-year post-secondary diploma</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'edu','highschool')"><div class="opt-radio"></div><div class="opt-text"><h4>High school diploma</h4></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(2)">← Back</button><button class="btn-next" id="nq3" disabled onclick="nextQ(4)">Next →</button></div>
+  </div>
+
+  <!-- Q4: Language -->
+  <div class="question-card" id="q4">
+    <div class="q-number">Question 4 of 8</div>
+    <div class="q-title">English language proficiency (CLB)</div>
+    <div class="q-desc">Most PNP streams require minimum CLB 5 to CLB 7. French speakers should select their English level here; French streams are handled separately.</div>
+    <div class="opts">
+      <div class="opt" onclick="selectQ(this,'lang','clb9plus')"><div class="opt-radio"></div><div class="opt-text"><h4>CLB 9 or above</h4><p>IELTS 7.0+ in all bands</p></div></div>
+      <div class="opt" onclick="selectQ(this,'lang','clb8')"><div class="opt-radio"></div><div class="opt-text"><h4>CLB 8</h4><p>IELTS 6.5/6.5/6/6.5</p></div></div>
+      <div class="opt" onclick="selectQ(this,'lang','clb7')"><div class="opt-radio"></div><div class="opt-text"><h4>CLB 7</h4><p>IELTS 6/5.5/5.5/6</p></div></div>
+      <div class="opt" onclick="selectQ(this,'lang','clb5-6')"><div class="opt-radio"></div><div class="opt-text"><h4>CLB 5 or 6</h4><p>IELTS 5.0–5.5 range</p></div></div>
+      <div class="opt" onclick="selectQ(this,'lang','below5')"><div class="opt-radio"></div><div class="opt-text"><h4>Below CLB 5</h4><p>Most PNP streams will not be accessible</p></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(3)">← Back</button><button class="btn-next" id="nq4" disabled onclick="nextQ(5)">Next →</button></div>
+  </div>
+
+  <!-- Q5: Work Exp -->
+  <div class="question-card" id="q5">
+    <div class="q-number">Question 5 of 8</div>
+    <div class="q-title">Years of skilled work experience</div>
+    <div class="q-desc">Include both Canadian and foreign skilled work experience at TEER 0–3 level. Part-time experience counts proportionally.</div>
+    <div class="opts cols2">
+      <div class="opt" onclick="selectQ(this,'workexp','none')"><div class="opt-radio"></div><div class="opt-text"><h4>Less than 1 year</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'workexp','1yr')"><div class="opt-radio"></div><div class="opt-text"><h4>1 year</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'workexp','2-3yr')"><div class="opt-radio"></div><div class="opt-text"><h4>2–3 years</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'workexp','4-5yr')"><div class="opt-radio"></div><div class="opt-text"><h4>4–5 years</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'workexp','5plus')"><div class="opt-radio"></div><div class="opt-text"><h4>5+ years</h4></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(4)">← Back</button><button class="btn-next" id="nq5" disabled onclick="nextQ(6)">Next →</button></div>
+  </div>
+
+  <!-- Q6: CRS Score -->
+  <div class="question-card" id="q6">
+    <div class="q-number">Question 6 of 8</div>
+    <div class="q-title">Approximate CRS score (if known)</div>
+    <div class="q-desc">Your CRS score affects which enhanced PNP streams you qualify for. If you haven't calculated it yet, use our CRS Calculator first.</div>
+    <div class="opts cols2">
+      <div class="opt" onclick="selectQ(this,'crs','500plus')"><div class="opt-radio"></div><div class="opt-text"><h4>500 or above</h4><p>Strong — eligible for most streams</p></div></div>
+      <div class="opt" onclick="selectQ(this,'crs','470-499')"><div class="opt-radio"></div><div class="opt-text"><h4>470–499</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'crs','440-469')"><div class="opt-radio"></div><div class="opt-text"><h4>440–469</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'crs','400-439')"><div class="opt-radio"></div><div class="opt-text"><h4>400–439</h4></div></div>
+      <div class="opt" onclick="selectQ(this,'crs','below400')"><div class="opt-radio"></div><div class="opt-text"><h4>Below 400</h4><p>Base PNP streams may still be accessible</p></div></div>
+      <div class="opt" onclick="selectQ(this,'crs','unknown')"><div class="opt-radio"></div><div class="opt-text"><h4>Haven't calculated yet</h4></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(5)">← Back</button><button class="btn-next" id="nq6" disabled onclick="nextQ(7)">Next →</button></div>
+  </div>
+
+  <!-- Q7: French -->
+  <div class="question-card" id="q7">
+    <div class="q-number">Question 7 of 8</div>
+    <div class="q-title">Do you speak French?</div>
+    <div class="q-desc">French speakers have access to dedicated streams with significantly lower CRS cutoffs, including federal French-language draws and Ontario/New Brunswick French streams.</div>
+    <div class="opts cols2">
+      <div class="opt" onclick="selectQ(this,'french','nclc7plus')"><div class="opt-radio"></div><div class="opt-text"><h4>Yes — NCLC 7 or above</h4><p>Eligible for French-language draw and specific PNP streams</p></div></div>
+      <div class="opt" onclick="selectQ(this,'french','nclc5-6')"><div class="opt-radio"></div><div class="opt-text"><h4>Yes — NCLC 5 or 6</h4><p>Some benefit but limited stream access</p></div></div>
+      <div class="opt" onclick="selectQ(this,'french','basic')"><div class="opt-radio"></div><div class="opt-text"><h4>Basic / conversational only</h4><p>Not at tested proficiency level</p></div></div>
+      <div class="opt" onclick="selectQ(this,'french','no')"><div class="opt-radio"></div><div class="opt-text"><h4>No French language ability</h4></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(6)">← Back</button><button class="btn-next" id="nq7" disabled onclick="nextQ(8)">Next →</button></div>
+  </div>
+
+  <!-- Q8: Ties -->
+  <div class="question-card" id="q8">
+    <div class="q-number">Question 8 of 8</div>
+    <div class="q-title">Do you have any connections to Canada?</div>
+    <div class="q-desc">Connections significantly boost eligibility for certain provincial streams. Select all that apply.</div>
+    <div class="opts">
+      <div class="opt" onclick="selectQ(this,'ties','joboffer')"><div class="opt-radio"></div><div class="opt-text"><h4>Valid Canadian job offer</h4><p>From an employer in a specific province</p></div></div>
+      <div class="opt" onclick="selectQ(this,'ties','studied')"><div class="opt-radio"></div><div class="opt-text"><h4>Studied at a Canadian institution</h4><p>Completed a post-secondary program in Canada</p></div></div>
+      <div class="opt" onclick="selectQ(this,'ties','family')"><div class="opt-radio"></div><div class="opt-text"><h4>Close family member in Canada</h4><p>Canadian citizen or PR who is a sibling, parent, child, or spouse</p></div></div>
+      <div class="opt" onclick="selectQ(this,'ties','worked')"><div class="opt-radio"></div><div class="opt-text"><h4>Currently working in Canada</h4><p>On a valid work permit in Canada right now</p></div></div>
+      <div class="opt" onclick="selectQ(this,'ties','none')"><div class="opt-radio"></div><div class="opt-text"><h4>No established connections</h4><p>Applying from outside Canada with no prior ties</p></div></div>
+    </div>
+    <div class="q-nav"><button class="btn-back" onclick="prevQ(7)">← Back</button><button class="btn-next" id="nq8" disabled onclick="showMatches()">Find My Matches →</button></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-wrap" id="resultsWrap">
+    <div class="results-header">
+      <div class="page-eyebrow">Your Results</div>
+      <h2>Your PNP Stream Matches</h2>
+      <p>Based on your profile, here are the provincial streams where you meet or closely meet the published eligibility criteria.</p>
+      <div class="match-count" id="matchCount"></div>
+    </div>
+    <div class="streams-grid" id="streamsGrid"></div>
+    <div class="results-actions">
+      <a href="crs-calculator.html" class="btn-primary">Calculate Full CRS Score →</a>
+      <a href="index.html#consult" class="btn-outline">Book RCIC Consultation</a>
+      <button class="btn-outline" onclick="resetQuiz()">Start Over</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const answers = {};
+
+function selectQ(opt, field, value) {
+  opt.closest('.opts').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  opt.classList.add('sel');
+  answers[field] = value;
+  const qn = opt.closest('.question-card').id.replace('q','');
+  const nb = document.getElementById('nq'+qn);
+  if (nb) nb.disabled = false;
+}
+
+function nextQ(n) {
+  document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('q'+n).classList.add('active');
+  const pct = Math.round((n/8)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = 'Question '+n+' of 8';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function prevQ(n) {
+  nextQ(n);
+}
+
+function showMatches() {
+  document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressLabel').textContent = 'Complete';
+
+  const a = answers;
+  const streams = buildStreams(a);
+  const sorted = streams.sort((a,b) => b.score - a.score);
+  const top = sorted.slice(0, 7);
+
+  document.getElementById('matchCount').textContent = `${top.filter(s=>s.matchType!=='possible').length} strong matches found`;
+
+  document.getElementById('streamsGrid').innerHTML = top.map(s => `
+    <div class="stream-card ${s.matchType}">
+      <div class="stream-header">
+        <div>
+          <div class="stream-name">${s.name}</div>
+          <div class="stream-province">${s.province}</div>
+        </div>
+        <span class="match-badge ${s.matchType==='top-match'?'badge-top':s.matchType==='good-match'?'badge-good':'badge-possible'}">${s.matchType==='top-match'?'Top Match':s.matchType==='good-match'?'Good Match':'Possible Match'}</span>
+      </div>
+      <div class="stream-meta">
+        <div class="stream-meta-item"><span class="meta-label">Processing</span><span class="meta-value">${s.processing}</span></div>
+        <div class="stream-meta-item"><span class="meta-label">Min. CRS</span><span class="meta-value">${s.minCRS}</span></div>
+        <div class="stream-meta-item"><span class="meta-label">Min. Language</span><span class="meta-value">${s.minLang}</span></div>
+      </div>
+      <div class="stream-requirements">
+        ${s.requirements.map(r=>`<div class="req-item ${r.status}"><div class="req-dot"></div>${r.text}</div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('resultsWrap').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildStreams(a) {
+  const isHighLang = ['clb9plus','clb8','clb7'].includes(a.lang);
+  const isMidLang = a.lang === 'clb5-6';
+  const hasExp = ['1yr','2-3yr','4-5yr','5plus'].includes(a.workexp);
+  const hasGoodExp = ['2-3yr','4-5yr','5plus'].includes(a.workexp);
+  const highEdu = ['phd','masters','bachelor'].includes(a.edu);
+  const isTech = a.noc === 'tech';
+  const isHealth = a.noc === 'health';
+  const isTrades = a.noc === 'trades';
+  const hasFrench = ['nclc7plus','nclc5-6'].includes(a.french);
+  const highFrench = a.french === 'nclc7plus';
+  const hasJobOffer = a.ties === 'joboffer';
+  const studiedCan = a.ties === 'studied';
+  const worksInCan = a.ties === 'worked';
+  const provAny = a.province === 'any';
+  const highCRS = ['500plus','470-499'].includes(a.crs);
+
+  const streams = [];
+
+  // OINP HCP
+  if ((provAny || a.province === 'ON') && isTech && highEdu && isHighLang) {
+    streams.push({name:'OINP Human Capital Priorities',province:'Ontario',processing:'2–3 months',minCRS:'400+',minLang:'CLB 7',matchType:'top-match',score:95,requirements:[{status:'met',text:'Tech occupation in TEER 1–2 ✓'},{status:isHighLang?'met':'partial',text:'CLB 7+ language requirement'},{status:highEdu?'met':'partial',text:'Post-secondary education verified'},{status:'met',text:'No job offer required'}]});
+  }
+
+  // BC PNP Tech
+  if ((provAny || a.province === 'BC') && isTech && isHighLang) {
+    streams.push({name:'BC PNP Tech Pilot',province:'British Columbia',processing:'2–8 weeks',minCRS:'N/A',minLang:'CLB 4',matchType:hasJobOffer?'top-match':'good-match',score:hasJobOffer?90:75,requirements:[{status:hasJobOffer?'met':'unmet',text:'Valid BC employer job offer (required)'},{status:isHighLang?'met':'partial',text:'Language requirement CLB 4+'},{status:'met',text:'Eligible tech NOC occupation'},{status:hasExp?'met':'unmet',text:'Minimum 2 years work experience'}]});
+  }
+
+  // MPNP Skilled Workers in Manitoba
+  if ((provAny || a.province === 'MB') && hasExp && isHighLang) {
+    streams.push({name:'MPNP Skilled Workers in Manitoba',province:'Manitoba',processing:'60–90 days',minCRS:'N/A',minLang:'CLB 5',matchType:worksInCan||hasJobOffer?'top-match':'good-match',score:worksInCan?88:70,requirements:[{status:worksInCan||hasJobOffer?'met':'partial',text:'Manitoba connection (job offer or in-province work)'},{status:isHighLang?'met':isMidLang?'partial':'unmet',text:'CLB 5 language requirement'},{status:hasExp?'met':'unmet',text:'Minimum 1 year skilled work experience'},{status:'partial',text:'Settlement funds demonstration required'}]});
+  }
+
+  // SINP Express Entry
+  if ((provAny || a.province === 'SK') && isHighLang && hasGoodExp) {
+    streams.push({name:'SINP Express Entry',province:'Saskatchewan',processing:'3–4 months',minCRS:'N/A',minLang:'CLB 7',matchType:'good-match',score:72,requirements:[{status:isHighLang?'met':'unmet',text:'CLB 7 language requirement'},{status:hasGoodExp?'met':'partial',text:'2+ years skilled work experience'},{status:highEdu?'met':'partial',text:'Post-secondary education'},{status:'partial',text:'Active EE profile required'}]});
+  }
+
+  // AINP Alberta Opportunity
+  if ((provAny || a.province === 'AB') && hasExp && (isHighLang || isMidLang)) {
+    streams.push({name:'AINP Alberta Opportunity',province:'Alberta',processing:'6–12 months',minCRS:'N/A',minLang:'CLB 5',matchType:hasJobOffer?'top-match':'good-match',score:hasJobOffer?85:65,requirements:[{status:hasJobOffer?'met':'unmet',text:'Full-time Alberta employer job offer'},{status:hasExp?'met':'unmet',text:'Minimum work experience in occupation'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 5 language (CLB 7 for some NOCs)'},{status:'partial',text:'Employment must match your NOC'}]});
+  }
+
+  // Federal French-language draw
+  if (highFrench) {
+    streams.push({name:'Federal French-Language Category Draw',province:'Federal (Express Entry)',processing:'6 months',minCRS:'350–400 (French draws)',minLang:'NCLC 7',matchType:'top-match',score:92,requirements:[{status:'met',text:'NCLC 7 French proficiency ✓'},{status:hasExp?'met':'unmet',text:'Minimum 1 year skilled work experience'},{status:'met',text:'No provincial nomination required'},{status:'partial',text:'Active Express Entry profile required'}]});
+  }
+
+  // Atlantic Immigration Program
+  if ((provAny || a.province === 'NS') && hasExp && isHighLang) {
+    streams.push({name:'Atlantic Immigration Program (AIP)',province:'Nova Scotia / NB / PEI / NL',processing:'6–12 months',minCRS:'N/A',minLang:'CLB 4–6',matchType:hasJobOffer?'top-match':'good-match',score:hasJobOffer?83:60,requirements:[{status:hasJobOffer?'met':'unmet',text:'Designated Atlantic employer job offer (required)'},{status:hasExp?'met':'unmet',text:'Skilled work experience requirement'},{status:isHighLang||isMidLang?'met':'partial',text:'Language requirement varies by NOC'},{status:highEdu?'met':'partial',text:'Education requirement for some streams'}]});
+  }
+
+  // OINP Employer Job Offer stream
+  if ((provAny || a.province === 'ON') && hasJobOffer && hasExp) {
+    streams.push({name:'OINP Employer Job Offer Stream',province:'Ontario',processing:'3–5 months',minCRS:'N/A',minLang:'CLB 4–7',matchType:'good-match',score:78,requirements:[{status:'met',text:'Ontario employer job offer ✓'},{status:hasExp?'met':'unmet',text:'Work experience in offered NOC'},{status:isHighLang?'met':isMidLang?'partial':'unmet',text:'Language requirement by NOC level'},{status:'partial',text:'Employer must be registered with OINP'}]});
+  }
+
+  // Healthcare stream
+  if (isHealth && isHighLang && (provAny || ['ON','BC','AB','MB'].includes(a.province))) {
+    streams.push({name:'Healthcare Worker Priority Streams',province:'Multiple provinces',processing:'2–4 months',minCRS:'N/A',minLang:'CLB 7',matchType:'top-match',score:91,requirements:[{status:'met',text:'Healthcare NOC occupation ✓'},{status:isHighLang?'met':'unmet',text:'CLB 7 minimum language requirement'},{status:hasExp?'met':'partial',text:'Minimum 1 year healthcare experience'},{status:'partial',text:'Provincial licence or eligibility required in most streams'}]});
+  }
+
+  // Trades streams
+  if (isTrades && (isHighLang || isMidLang)) {
+    streams.push({name:'Skilled Trades Category (Federal)',province:'Federal (Express Entry)',processing:'6 months',minCRS:'430–460 (trades draws)',minLang:'CLB 5',matchType:highCRS?'top-match':'good-match',score:highCRS?86:68,requirements:[{status:'met',text:'Skilled trades NOC ✓'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 5 language minimum'},{status:hasExp?'met':'unmet',text:'1 year trades experience required'},{status:'partial',text:'Certificate of qualification adds 50 CRS pts'}]});
+  }
+
+  // Fallback if nothing matched well
+  if (streams.length === 0) {
+    streams.push({name:'MPNP International Education Stream',province:'Manitoba',processing:'60–90 days',minCRS:'N/A',minLang:'CLB 5',matchType:'possible',score:40,requirements:[{status:studiedCan?'met':'unmet',text:'Graduated from a Manitoba institution (required)'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 5 language minimum'},{status:'partial',text:'Full-time Manitoba job offer required'},{status:'partial',text:'Must apply within 18 months of graduation'}]});
+    streams.push({name:'SINP International Skilled Worker',province:'Saskatchewan',processing:'4–6 months',minCRS:'N/A',minLang:'CLB 4',matchType:'possible',score:35,requirements:[{status:hasExp?'partial':'unmet',text:'Work experience in demand occupation'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 4 language minimum'},{status:'partial',text:'Must have job offer or connection to SK'},{status:'partial',text:'In-demand occupation in SK required'}]});
+  }
+
+  return streams;
+}
+
+function resetQuiz() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  document.getElementById('resultsWrap').classList.remove('active');
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  document.querySelectorAll('.btn-next').forEach(b => b.disabled = true);
+  nextQ(1);
+}
+</script>
+</body>
+</html>

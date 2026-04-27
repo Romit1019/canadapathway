@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRS Score Calculator 2025 — CanadaPathway</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1b2a;--navy-mid:#162235;--navy-light:#1e3050;
+  --red:#d42b2b;--red-light:#e84040;
+  --gold:#c8922a;--gold-light:#e8b052;
+  --cream:#f5f0e8;--cream-dim:#a0a8b4;
+  --white:#ffffff;--text-muted:#8a9ab0;
+  --border:rgba(255,255,255,0.08);--success:#2ecc71;--warning:#f39c12;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--cream);line-height:1.6;min-height:100vh}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);text-decoration:none}.logo span{color:var(--red)}
+nav-links{display:flex;gap:2rem}
+.nav-back{color:var(--text-muted);text-decoration:none;font-size:0.875rem;display:flex;align-items:center;gap:0.5rem;transition:color 0.2s}.nav-back:hover{color:var(--cream)}
+
+.page-header{padding:100px 5% 3rem;text-align:center;max-width:720px;margin:0 auto}
+.page-eyebrow{font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:1rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:1rem;letter-spacing:-0.02em}
+.page-header p{color:var(--text-muted);font-size:1rem;line-height:1.7}
+
+.calc-wrapper{max-width:860px;margin:0 auto;padding:0 5% 5rem}
+
+/* PROGRESS */
+.progress-bar{display:flex;align-items:center;gap:0;margin-bottom:3rem;position:relative}
+.progress-bar::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border);z-index:0}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;position:relative;z-index:1;flex-shrink:0;transition:all 0.3s;cursor:default}
+.step-dot.done{background:var(--red);color:white;border:2px solid var(--red)}
+.step-dot.active{background:var(--navy-mid);color:var(--gold-light);border:2px solid var(--gold)}
+.step-dot.pending{background:var(--navy-mid);color:var(--text-muted);border:2px solid var(--border)}
+.step-line{flex:1;height:1px;background:var(--border);z-index:0;transition:background 0.3s}
+.step-line.done{background:var(--red)}
+.step-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:0.65rem;white-space:nowrap;color:var(--text-muted);letter-spacing:0.04em}
+.step-dot.active .step-label{color:var(--gold-light)}
+
+/* STEP CARD */
+.step-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:14px;padding:2.5rem;display:none;animation:fadeIn 0.35s ease}
+.step-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.step-number{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:0.75rem}
+.step-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:600;color:var(--white);margin-bottom:0.5rem}
+.step-desc{font-size:0.875rem;color:var(--text-muted);margin-bottom:2rem;line-height:1.6}
+
+/* OPTIONS GRID */
+.options-grid{display:grid;gap:0.75rem}
+.options-grid.cols-2{grid-template-columns:1fr 1fr}
+.options-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+
+.option-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:1.25rem;cursor:pointer;text-align:left;transition:all 0.2s;color:var(--cream);font-family:'DM Sans',sans-serif;display:flex;align-items:flex-start;gap:1rem}
+.option-btn:hover{border-color:rgba(200,146,42,0.4);background:rgba(200,146,42,0.04)}
+.option-btn.selected{border-color:var(--gold);background:rgba(200,146,42,0.08)}
+.option-btn.selected .opt-check{background:var(--gold);border-color:var(--gold)}
+.option-btn.selected .opt-check::after{display:block}
+
+.opt-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;margin-top:2px;position:relative;transition:all 0.2s}
+.opt-check::after{content:'';display:none;width:8px;height:8px;background:white;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+
+.opt-content h4{font-size:0.95rem;font-weight:600;color:var(--white);margin-bottom:0.2rem}
+.opt-content p{font-size:0.78rem;color:var(--text-muted);line-height:1.4}
+.opt-points{margin-left:auto;font-size:0.85rem;font-weight:600;color:var(--gold-light);flex-shrink:0;align-self:center;padding-left:1rem}
+
+/* NAV BUTTONS */
+.step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:2rem}
+.btn-back{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:0.75rem 1.5rem;border-radius:6px;font-size:0.875rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-back:hover{border-color:rgba(255,255,255,0.2);color:var(--cream)}
+.btn-next{background:var(--red);color:white;padding:0.75rem 2rem;border:none;border-radius:6px;font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;min-width:140px}
+.btn-next:hover{background:var(--red-light)}
+.btn-next:disabled{background:rgba(138,154,176,0.2);color:var(--text-muted);cursor:not-allowed}
+
+.step-hint{font-size:0.78rem;color:var(--text-muted)}
+
+/* RESULTS */
+.results-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:14px;padding:2.5rem;display:none}
+.results-card.active{display:block}
+
+.score-hero{text-align:center;padding:2rem;background:rgba(200,146,42,0.07);border-radius:10px;border:1px solid rgba(200,146,42,0.2);margin-bottom:2rem}
+.score-big{font-family:'Playfair Display',serif;font-size:5rem;font-weight:700;color:var(--gold-light);line-height:1}
+.score-max{font-size:1rem;color:var(--text-muted);margin-top:0.25rem}
+.score-verdict{display:inline-block;margin-top:1rem;padding:0.4rem 1.25rem;border-radius:20px;font-size:0.85rem;font-weight:600}
+.verdict-strong{background:rgba(46,204,113,0.15);color:#2ecc71}
+.verdict-mid{background:rgba(243,156,18,0.15);color:#f39c12}
+.verdict-low{background:rgba(212,43,43,0.15);color:#e84040}
+
+.breakdown-title{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.25rem}
+.breakdown-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:2rem}
+.breakdown-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.breakdown-item h5{font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;letter-spacing:0.04em}
+.breakdown-score{display:flex;align-items:center;gap:0.75rem}
+.breakdown-pts{font-size:1.4rem;font-weight:600;color:var(--white)}
+.breakdown-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+.breakdown-bar{height:100%;background:var(--gold);border-radius:2px;transition:width 0.6s ease}
+
+.compare-section{margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border)}
+.compare-title{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem}
+.draw-compare-list{display:flex;flex-direction:column;gap:0.6rem}
+.draw-compare-row{display:flex;align-items:center;gap:1rem;font-size:0.85rem}
+.draw-type-label{width:130px;flex-shrink:0;color:var(--text-muted)}
+.compare-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;position:relative;overflow:visible}
+.compare-bar-fill{height:100%;border-radius:3px;transition:width 0.8s ease}
+.compare-cutoff{width:50px;text-align:right;font-weight:600;flex-shrink:0}
+.your-marker{position:absolute;top:-5px;width:2px;height:16px;background:var(--gold-light);border-radius:1px}
+
+.reco-section{margin-top:2rem;padding:1.5rem;background:rgba(212,43,43,0.06);border:1px solid rgba(212,43,43,0.2);border-radius:10px}
+.reco-title{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--red);margin-bottom:1rem}
+.reco-list{display:flex;flex-direction:column;gap:0.6rem}
+.reco-item{display:flex;gap:0.75rem;font-size:0.875rem;color:var(--cream)}
+.reco-item::before{content:'→';color:var(--gold-light);flex-shrink:0}
+
+.results-actions{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+.btn-primary{background:var(--red);color:white;padding:0.875rem 2rem;border:none;border-radius:6px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;transition:background 0.2s}
+.btn-primary:hover{background:var(--red-light)}
+.btn-outline{background:transparent;color:var(--cream);padding:0.875rem 2rem;border:1px solid rgba(255,255,255,0.2);border-radius:6px;font-size:0.9rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;transition:all 0.2s}
+.btn-outline:hover{border-color:var(--gold-light);color:var(--gold-light)}
+
+@media(max-width:600px){.options-grid.cols-2,.options-grid.cols-3{grid-template-columns:1fr}.breakdown-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Canada<span>Pathway</span></a>
+  <a href="index.html" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-eyebrow">Free Tool</div>
+  <h1>CRS Score Calculator</h1>
+  <p>Calculate your complete Comprehensive Ranking System score using the official IRCC formula. Takes about 3 minutes.</p>
+</div>
+
+<div class="calc-wrapper">
+
+  <!-- PROGRESS -->
+  <div class="progress-bar" id="progressBar">
+    <div class="step-dot active" id="dot1">1<span class="step-label">Status</span></div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-dot pending" id="dot2">2<span class="step-label">Age</span></div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-dot pending" id="dot3">3<span class="step-label">Education</span></div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-dot pending" id="dot4">4<span class="step-label">Language</span></div>
+    <div class="step-line" id="line4"></div>
+    <div class="step-dot pending" id="dot5">5<span class="step-label">Experience</span></div>
+    <div class="step-line" id="line5"></div>
+    <div class="step-dot pending" id="dot6">6<span class="step-label">Extras</span></div>
+    <div class="step-line" id="line6"></div>
+    <div class="step-dot pending" id="dot7">7<span class="step-label">Results</span></div>
+  </div>
+
+  <!-- STEP 1: Marital Status -->
+  <div class="step-card active" id="step1">
+    <div class="step-number">Step 1 of 6</div>
+    <div class="step-title">Marital Status</div>
+    <div class="step-desc">This affects how your core human capital factors are scored. Married applicants are scored slightly differently.</div>
+    <div class="options-grid cols-2">
+      <button class="option-btn" onclick="selectOption(this, 'status', 'single', 0)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Single / Never Married</h4><p>No spouse or common-law partner accompanying you</p></div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'status', 'married-accompanying', 0)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Married — Spouse Accompanying</h4><p>Spouse or common-law partner will immigrate with you</p></div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'status', 'married-not', 0)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Married — Spouse Not Accompanying</h4><p>Spouse is a Canadian citizen/PR or will not immigrate</p></div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'status', 'divorced', 0)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Divorced / Widowed / Separated</h4><p>Treated as single for CRS purposes</p></div>
+      </button>
+    </div>
+    <div class="step-nav">
+      <span class="step-hint">Married with accompanying spouse? You'll also be asked to enter their profile.</span>
+      <button class="btn-next" id="next1" disabled onclick="goToStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Age -->
+  <div class="step-card" id="step2">
+    <div class="step-number">Step 2 of 6</div>
+    <div class="step-title">Your Age</div>
+    <div class="step-desc">Age points peak at 18–35 and decline after that. Score shown is without spouse (adjusts if spouse is accompanying).</div>
+    <div class="options-grid cols-3">
+      <button class="option-btn" onclick="selectOption(this, 'age', '17', 0)">
+        <div class="opt-check"></div><div class="opt-content"><h4>17 or under</h4></div><div class="opt-points">0 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '18-35', 110)">
+        <div class="opt-check"></div><div class="opt-content"><h4>18–35</h4></div><div class="opt-points">110 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '36', 99)">
+        <div class="opt-check"></div><div class="opt-content"><h4>36</h4></div><div class="opt-points">99 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '37', 88)">
+        <div class="opt-check"></div><div class="opt-content"><h4>37</h4></div><div class="opt-points">88 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '38', 77)">
+        <div class="opt-check"></div><div class="opt-content"><h4>38</h4></div><div class="opt-points">77 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '39', 66)">
+        <div class="opt-check"></div><div class="opt-content"><h4>39</h4></div><div class="opt-points">66 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '40', 55)">
+        <div class="opt-check"></div><div class="opt-content"><h4>40</h4></div><div class="opt-points">55 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '41', 44)">
+        <div class="opt-check"></div><div class="opt-content"><h4>41</h4></div><div class="opt-points">44 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '42', 33)">
+        <div class="opt-check"></div><div class="opt-content"><h4>42</h4></div><div class="opt-points">33 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '43', 22)">
+        <div class="opt-check"></div><div class="opt-content"><h4>43</h4></div><div class="opt-points">22 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '44', 11)">
+        <div class="opt-check"></div><div class="opt-content"><h4>44</h4></div><div class="opt-points">11 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'age', '45+', 0)">
+        <div class="opt-check"></div><div class="opt-content"><h4>45 or over</h4></div><div class="opt-points">0 pts</div>
+      </button>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goToStep(1)">← Back</button>
+      <button class="btn-next" id="next2" disabled onclick="goToStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Education -->
+  <div class="step-card" id="step3">
+    <div class="step-number">Step 3 of 6</div>
+    <div class="step-title">Highest Education Level</div>
+    <div class="step-desc">This must be a completed credential. If your degree is from outside Canada, an Educational Credential Assessment (ECA) is required.</div>
+    <div class="options-grid">
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'phd', 150)">
+        <div class="opt-check"></div><div class="opt-content"><h4>Doctoral degree (PhD)</h4><p>University-level credential at the doctoral level</p></div><div class="opt-points">150 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'masters', 135)">
+        <div class="opt-check"></div><div class="opt-content"><h4>Master's degree or professional degree</h4><p>Entry to practise in a profession requires a licence (e.g. medicine, law)</p></div><div class="opt-points">135 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'bach3+', 120)">
+        <div class="opt-check"></div><div class="opt-content"><h4>Two or more post-secondary credentials</h4><p>One must be 3+ years (bachelor's or higher)</p></div><div class="opt-points">128 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'bach', 120)">
+        <div class="opt-check"></div><div class="opt-content"><h4>Bachelor's degree (3-year program)</h4><p>Three or more year post-secondary credential</p></div><div class="opt-points">120 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'dip2', 98)">
+        <div class="opt-check"></div><div class="opt-content"><h4>Two-year post-secondary diploma or certificate</h4><p>Trade certification also qualifies at this level</p></div><div class="opt-points">98 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'dip1', 90)">
+        <div class="opt-check"></div><div class="opt-content"><h4>One-year post-secondary diploma or certificate</h4></div><div class="opt-points">90 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'highschool', 30)">
+        <div class="opt-check"></div><div class="opt-content"><h4>Canadian secondary school diploma</h4><p>High school or equivalent</p></div><div class="opt-points">30 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'none', 0)">
+        <div class="opt-check"></div><div class="opt-content"><h4>None, or less than secondary</h4></div><div class="opt-points">0 pts</div>
+      </button>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goToStep(2)">← Back</button>
+      <button class="btn-next" id="next3" disabled onclick="goToStep(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Language -->
+  <div class="step-card" id="step4">
+    <div class="step-number">Step 4 of 6</div>
+    <div class="step-title">First Official Language (English or French)</div>
+    <div class="step-desc">Select your CLB level based on your IELTS, CELPIP, or TEF results. This is the single biggest controllable factor in your CRS score.</div>
+    <div class="options-grid">
+      <button class="option-btn" onclick="selectOption(this, 'lang1', 'clb10', 136)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>CLB 10 or higher</h4><p>IELTS: 8.5/8/7.5/8.5 — Exceptional proficiency</p></div>
+        <div class="opt-points">136 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'lang1', 'clb9', 124)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>CLB 9</h4><p>IELTS: 7/7/6.5/7 — Advanced proficiency</p></div>
+        <div class="opt-points">124 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'lang1', 'clb8', 110)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>CLB 8</h4><p>IELTS: 6.5/6.5/6/6.5 — Upper intermediate</p></div>
+        <div class="opt-points">110 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'lang1', 'clb7', 90)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>CLB 7</h4><p>IELTS: 6/5.5/5.5/6 — Minimum for CEC, FSW</p></div>
+        <div class="opt-points">90 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'lang1', 'clb5-6', 60)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>CLB 5 or 6</h4><p>IELTS: 5.0-5.5 range — Limited for EE pathways</p></div>
+        <div class="opt-points">60 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'lang1', 'clb4', 32)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>CLB 4 or below</h4><p>Below minimum requirements for most EE streams</p></div>
+        <div class="opt-points">32 pts</div>
+      </button>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goToStep(3)">← Back</button>
+      <button class="btn-next" id="next4" disabled onclick="goToStep(5)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Work Experience -->
+  <div class="step-card" id="step5">
+    <div class="step-number">Step 5 of 6</div>
+    <div class="step-title">Work Experience</div>
+    <div class="step-desc">Select your Canadian and foreign skilled work experience. Must be NOC TEER 0, 1, 2, or 3 (previously NOC 0, A, or B). Continuous full-time hours or equivalent part-time.</div>
+
+    <h3 style="font-size:0.85rem;color:var(--gold-light);margin-bottom:0.75rem;margin-top:0">Canadian Work Experience</h3>
+    <div class="options-grid cols-3" id="canWorkOptions">
+      <button class="option-btn" onclick="selectOption(this, 'canWork', '0', 0, 'canWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>None</h4></div><div class="opt-points">0 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'canWork', '1', 40, 'canWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>1 year</h4></div><div class="opt-points">40 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'canWork', '2', 53, 'canWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>2 years</h4></div><div class="opt-points">53 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'canWork', '3', 64, 'canWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>3 years</h4></div><div class="opt-points">64 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'canWork', '4', 72, 'canWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>4 years</h4></div><div class="opt-points">72 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'canWork', '5+', 80, 'canWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>5+ years</h4></div><div class="opt-points">80 pts</div>
+      </button>
+    </div>
+
+    <h3 style="font-size:0.85rem;color:var(--gold-light);margin:1.5rem 0 0.75rem">Foreign Work Experience (outside Canada)</h3>
+    <div class="options-grid cols-3" id="forWorkOptions">
+      <button class="option-btn" onclick="selectOption(this, 'forWork', '0', 0, 'forWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>None</h4></div><div class="opt-points">0 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'forWork', '1-2', 13, 'forWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>1–2 years</h4></div><div class="opt-points">13 pts</div>
+      </button>
+      <button class="option-btn" onclick="selectOption(this, 'forWork', '3+', 25, 'forWorkOptions')">
+        <div class="opt-check"></div><div class="opt-content"><h4>3+ years</h4></div><div class="opt-points">25 pts</div>
+      </button>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goToStep(4)">← Back</button>
+      <button class="btn-next" id="next5" disabled onclick="goToStep(6)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Additional Factors -->
+  <div class="step-card" id="step6">
+    <div class="step-number">Step 6 of 6</div>
+    <div class="step-title">Additional Bonus Factors</div>
+    <div class="step-desc">Select all that apply. These are additional points on top of your core score.</div>
+    <div class="options-grid" id="bonusOptions">
+      <button class="option-btn multi" onclick="toggleBonus(this, 'pnp', 600)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Provincial Nomination</h4><p>You have received a nomination certificate from a province or territory</p></div>
+        <div class="opt-points">+600 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'jobOffer00', 200)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Valid Job Offer — NOC TEER 0 (Senior Manager/Executive)</h4><p>Employer-specific LMIA-backed job offer at the executive level</p></div>
+        <div class="opt-points">+200 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'jobOffer', 50)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Valid Job Offer — NOC TEER 1, 2, or 3</h4><p>LMIA-supported offer for most skilled positions</p></div>
+        <div class="opt-points">+50 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'sibling', 15)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Canadian Sibling</h4><p>You or your spouse has a sibling who is a Canadian citizen or PR, living in Canada</p></div>
+        <div class="opt-points">+15 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'canStudy3', 30)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Canadian Post-Secondary Study (2+ years)</h4><p>Completed a 2+ year program at a designated Canadian learning institution</p></div>
+        <div class="opt-points">+30 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'canStudy1', 15)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Canadian Post-Secondary Study (1 year)</h4><p>Completed a 1-year post-secondary credential in Canada</p></div>
+        <div class="opt-points">+15 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'cert', 50)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>Certificate of Qualification (Trades)</h4><p>Issued by a Canadian province/territory for a regulated trade</p></div>
+        <div class="opt-points">+50 pts</div>
+      </button>
+      <button class="option-btn multi" onclick="toggleBonus(this, 'none', 0)">
+        <div class="opt-check"></div>
+        <div class="opt-content"><h4>None of the above apply</h4></div>
+        <div class="opt-points">0 pts</div>
+      </button>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goToStep(5)">← Back</button>
+      <button class="btn-next" onclick="showResults()">Calculate My Score →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-card" id="resultsCard">
+    <div class="score-hero">
+      <div class="score-big" id="finalScore">---</div>
+      <div class="score-max">out of 1,200 possible points</div>
+      <div class="score-verdict" id="finalVerdict"></div>
+    </div>
+
+    <div class="breakdown-title">Score Breakdown</div>
+    <div class="breakdown-grid" id="breakdownGrid"></div>
+
+    <div class="compare-section">
+      <div class="compare-title">How You Compare to Recent Draw Cutoffs</div>
+      <div class="draw-compare-list" id="compareList"></div>
+    </div>
+
+    <div class="reco-section" id="recoSection">
+      <div class="reco-title">Strategic Recommendations</div>
+      <div class="reco-list" id="recoList"></div>
+    </div>
+
+    <div class="results-actions">
+      <a href="pnp-matcher.html" class="btn-primary">Find My PNP Matches →</a>
+      <a href="consult.html" class="btn-outline">Talk to an RCIC</a>
+      <button class="btn-outline" onclick="resetCalc()">Recalculate</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const state = {
+  status: null, statusPts: 0,
+  age: null, agePts: 0,
+  edu: null, eduPts: 0,
+  lang1: null, lang1Pts: 0,
+  canWork: null, canWorkPts: 0,
+  forWork: null, forWorkPts: 0,
+  bonus: {}, bonusPts: 0
+};
+
+function selectOption(btn, field, value, pts, groupId) {
+  const container = groupId ? document.getElementById(groupId) : btn.closest('.options-grid');
+  container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state[field] = value;
+  state[field + 'Pts'] = pts;
+  const stepNum = btn.closest('.step-card').id.replace('step','');
+  const nextBtn = document.getElementById('next' + stepNum);
+  if (nextBtn) nextBtn.disabled = false;
+  // Special: step 5 needs BOTH work fields
+  if (field === 'canWork' || field === 'forWork') {
+    const n5 = document.getElementById('next5');
+    if (n5) n5.disabled = !(state.canWork !== null && state.forWork !== null);
+  }
+}
+
+function toggleBonus(btn, key, pts) {
+  if (key === 'none') {
+    document.getElementById('bonusOptions').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    state.bonus = {};
+    state.bonusPts = 0;
+    btn.classList.add('selected');
+    return;
+  }
+  document.getElementById('bonusOptions').querySelectorAll('[onclick*="none"]').forEach(b => b.classList.remove('selected'));
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    delete state.bonus[key];
+  } else {
+    if ((key === 'jobOffer00' && state.bonus.jobOffer) || (key === 'jobOffer' && state.bonus.jobOffer00)) return;
+    if ((key === 'canStudy3' && state.bonus.canStudy1) || (key === 'canStudy1' && state.bonus.canStudy3)) {
+      document.querySelectorAll('[onclick*="canStudy"]').forEach(b => { b.classList.remove('selected'); delete state.bonus[b.getAttribute('onclick').match(/'([^']+)'/)[1]]; });
+    }
+    btn.classList.add('selected');
+    state.bonus[key] = pts;
+  }
+  state.bonusPts = Object.values(state.bonus).reduce((a,b) => a+b, 0);
+}
+
+function goToStep(n) {
+  document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  for (let i = 1; i <= 7; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.className = 'step-dot ' + (i < n ? 'done' : i === n ? 'active' : 'pending');
+    if (i < 7) document.getElementById('line' + i).className = 'step-line ' + (i < n ? 'done' : '');
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function showResults() {
+  const core = state.agePts + state.eduPts + state.lang1Pts + state.canWorkPts;
+  const total = Math.min(core + state.forWorkPts + state.bonusPts, 1200);
+
+  document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('resultsCard').classList.add('active');
+  for (let i = 1; i <= 7; i++) {
+    document.getElementById('dot' + i).className = 'step-dot done';
+    if (i < 7) document.getElementById('line' + i).className = 'step-line done';
+  }
+
+  document.getElementById('finalScore').textContent = total;
+
+  const verdict = document.getElementById('finalVerdict');
+  if (total >= 500) { verdict.textContent = 'Strong — Competitive for general draws'; verdict.className = 'score-verdict verdict-strong'; }
+  else if (total >= 450) { verdict.textContent = 'Moderate — Explore PNP and category-based draws'; verdict.className = 'score-verdict verdict-mid'; }
+  else { verdict.textContent = 'Below recent cutoffs — Improvement strategy needed'; verdict.className = 'score-verdict verdict-low'; }
+
+  const breakdown = [
+    {label: 'Age', pts: state.agePts, max: 110},
+    {label: 'Education', pts: state.eduPts, max: 150},
+    {label: 'Language', pts: state.lang1Pts, max: 136},
+    {label: 'Canadian Work Exp.', pts: state.canWorkPts, max: 80},
+    {label: 'Foreign Work Exp.', pts: state.forWorkPts, max: 25},
+    {label: 'Bonus Factors', pts: state.bonusPts, max: 600},
+  ];
+
+  document.getElementById('breakdownGrid').innerHTML = breakdown.map(b => `
+    <div class="breakdown-item">
+      <h5>${b.label}</h5>
+      <div class="breakdown-score">
+        <div class="breakdown-pts">${b.pts}</div>
+        <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${Math.min(100,Math.round(b.pts/b.max*100))}%"></div></div>
+        <span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap">/ ${b.max}</span>
+      </div>
+    </div>`).join('');
+
+  const draws = [
+    {label: 'General draw', cutoff: 524, color: '#60a5fa'},
+    {label: 'STEM category', cutoff: 491, color: '#4dca60'},
+    {label: 'French language', cutoff: 379, color: '#c084fc'},
+    {label: 'Healthcare', cutoff: 422, color: '#e8b052'},
+    {label: 'Trade workers', cutoff: 436, color: '#f97316'},
+  ];
+
+  document.getElementById('compareList').innerHTML = draws.map(d => {
+    const pct = Math.round(d.cutoff / 1200 * 100);
+    const yourPct = Math.min(Math.round(total / 1200 * 100), 100);
+    const beats = total >= d.cutoff;
+    return `<div class="draw-compare-row">
+      <span class="draw-type-label">${d.label}</span>
+      <div class="compare-bar-wrap">
+        <div class="compare-bar-fill" style="width:${pct}%;background:${beats ? d.color : 'rgba(138,154,176,0.2)'}"></div>
+        <div class="your-marker" style="left:${yourPct}%"></div>
+      </div>
+      <span class="compare-cutoff" style="color:${beats ? '#4dca60' : '#e84040'}">${d.cutoff}</span>
+    </div>`;
+  }).join('');
+
+  // Recommendations
+  const recos = [];
+  if (state.lang1Pts < 124) recos.push('Retake your language test — CLB 9 adds up to 34 points and is the single most cost-effective improvement.');
+  if (state.canWorkPts === 0) recos.push('Gain 1 year of Canadian work experience through a work permit — adds 40 points and opens the CEC stream.');
+  if (!state.bonus.pnp) recos.push('Apply to Provincial Nominee Programs — a nomination instantly adds 600 CRS points, virtually guaranteeing an ITA.');
+  if (total < 450 && !state.bonus.jobOffer && !state.bonus.jobOffer00) recos.push('Secure a valid LMIA-backed job offer — adds 50–200 points depending on NOC level.');
+  if (state.eduPts < 135 && state.eduPts > 0) recos.push('Consider a Canadian post-secondary credential — a 2+ year program adds 30 bonus points on top of your core education score.');
+  if (recos.length === 0) recos.push('Your score is strong. Focus on maintaining a complete, up-to-date Express Entry profile and tracking draw cutoffs.');
+
+  document.getElementById('recoList').innerHTML = recos.map(r => `<div class="reco-item">${r}</div>`).join('');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function resetCalc() {
+  Object.assign(state, {status:null,statusPts:0,age:null,agePts:0,edu:null,eduPts:0,lang1:null,lang1Pts:0,canWork:null,canWorkPts:0,forWork:null,forWorkPts:0,bonus:{},bonusPts:0});
+  document.getElementById('resultsCard').classList.remove('active');
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.btn-next').forEach(b => b.disabled = true);
+  goToStep(1);
+}
+</script>
+</body>
+</html>

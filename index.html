@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CanadaPathway — Immigration Guide & Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #162235;
+    --navy-light: #1e3050;
+    --red: #d42b2b;
+    --red-light: #e84040;
+    --gold: #c8922a;
+    --gold-light: #e8b052;
+    --cream: #f5f0e8;
+    --cream-dim: #d9d3c7;
+    --white: #ffffff;
+    --text-muted: #8a9ab0;
+    --border: rgba(255,255,255,0.08);
+    --card-bg: rgba(255,255,255,0.04);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--cream);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(13, 27, 42, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  .logo span { color: var(--red); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+  }
+
+  nav ul a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+
+  nav ul a:hover { color: var(--cream); }
+
+  .nav-cta {
+    background: var(--red);
+    color: var(--white) !important;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--red-light) !important; color: var(--white) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 64px 5% 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(212,43,43,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--red);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--gold-light);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--red);
+    color: var(--white);
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.925rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { background: var(--red-light); transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--cream);
+    padding: 0.875rem 2rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    font-size: 0.925rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-block;
+  }
+
+  .btn-ghost:hover { border-color: var(--gold-light); color: var(--gold-light); }
+
+  /* STATS STRIP */
+  .stats-strip {
+    display: flex;
+    gap: 2rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  .stat-item { flex: 1; }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* CRS CALCULATOR CARD */
+  .calc-card {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    position: relative;
+  }
+
+  .calc-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    border-radius: 12px 12px 0 0;
+  }
+
+  .calc-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 1.25rem;
+  }
+
+  .calc-score-display {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+    background: rgba(200,146,42,0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(200,146,42,0.2);
+  }
+
+  .score-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  .score-status {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.25rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(212,43,43,0.15);
+    color: #e84040;
+  }
+
+  .score-status.good {
+    background: rgba(56,183,74,0.15);
+    color: #4dca60;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+
+  label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  select, input[type="number"] {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--cream);
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  select:focus, input:focus { border-color: var(--gold); }
+
+  select option { background: var(--navy-mid); color: var(--cream); }
+
+  .calc-btn {
+    width: 100%;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.875rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 0.75rem;
+    transition: background 0.2s;
+  }
+
+  .calc-btn:hover { background: var(--red-light); }
+
+  /* SECTIONS */
+  section {
+    padding: 6rem 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-full {
+    max-width: 100%;
+    padding: 6rem 5%;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 60px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .section-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+  }
+
+  /* PATHWAYS */
+  .pathways-bg { background: var(--navy-mid); }
+
+  .pathways-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .pathway-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+
+  .pathway-card:hover {
+    border-color: rgba(200,146,42,0.4);
+    transform: translateY(-3px);
+  }
+
+  .pathway-card.featured {
+    border-color: rgba(212,43,43,0.4);
+    background: rgba(212,43,43,0.05);
+  }
+
+  .pathway-tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.625rem;
+    border-radius: 3px;
+    margin-bottom: 1.25rem;
+    display: inline-block;
+  }
+
+  .tag-hot { background: rgba(212,43,43,0.2); color: #e84040; }
+  .tag-popular { background: rgba(200,146,42,0.2); color: var(--gold-light); }
+  .tag-new { background: rgba(56,183,74,0.15); color: #4dca60; }
+  .tag-info { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+  .pathway-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .pathway-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+  }
+
+  .pathway-card p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .pathway-meta {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .meta-val {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cream);
+  }
+
+  .meta-key {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* DRAWS TABLE */
+  .draws-bg { background: var(--navy); }
+
+  .draws-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .draws-table th {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .draws-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--cream);
+  }
+
+  .draws-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .draw-type-badge {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    border-radius: 3px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-ee { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .badge-pnp { background: rgba(200,146,42,0.15); color: var(--gold-light); }
+  .badge-stem { background: rgba(56,183,74,0.15); color: #4dca60; }
+  .badge-french { background: rgba(147,51,234,0.15); color: #c084fc; }
+
+  .crs-high { color: #4dca60; font-weight: 600; }
+  .crs-mid { color: var(--gold-light); font-weight: 600; }
+  .crs-low { color: #60a5fa; font-weight: 600; }
+
+  .trend-up { color: #4dca60; font-size: 0.75rem; }
+  .trend-down { color: #e84040; font-size: 0.75rem; }
+
+  /* TOOLS */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .tool-card {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .tool-card:hover { border-color: rgba(200,146,42,0.3); }
+
+  .tool-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(200,146,42,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+
+  .tool-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-card p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  .tool-cta {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--gold-light);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* RCIC SECTION */
+  .rcic-bg {
+    background: linear-gradient(135deg, var(--navy-mid) 0%, rgba(30,48,80,0.6) 100%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rcic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .rcic-features { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .rcic-feature {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .rcic-feature-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(212,43,43,0.15);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .rcic-feature h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.25rem;
+  }
+
+  .rcic-feature p {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .consult-form {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+
+  .consult-form h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .consult-form p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .form-single {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  input[type="text"], input[type="email"] {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--cream);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus, input[type="email"]:focus { border-color: var(--gold); }
+  input::placeholder { color: rgba(138,154,176,0.6); }
+
+  .submit-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.875rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+    margin-top: 0.25rem;
+  }
+
+  .submit-btn:hover { background: var(--red-light); }
+
+  .form-disclaimer {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* NEWSLETTER */
+  .newsletter {
+    text-align: center;
+    padding: 5rem 5%;
+  }
+
+  .newsletter-inner {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .newsletter-inner h2 { margin-bottom: 1rem; }
+
+  .newsletter-inner p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    border-radius: 6px;
+  }
+
+  .newsletter-form button {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+
+  .newsletter-form button:hover { background: var(--red-light); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-logo span { color: var(--red); }
+
+  .footer-tagline {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    max-width: 220px;
+    line-height: 1.5;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-col h5 {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.875rem;
+  }
+
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .footer-col ul a {
+    font-size: 0.85rem;
+    color: var(--cream-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul a:hover { color: var(--gold-light); }
+
+  .footer-bottom {
+    padding: 1.5rem 5%;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-bottom p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .disclaimer {
+    font-size: 0.72rem;
+    color: rgba(138,154,176,0.6);
+    max-width: 500px;
+    line-height: 1.5;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up {
+    animation: fadeUp 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .delay-1 { animation-delay: 0.15s; }
+  .delay-2 { animation-delay: 0.3s; }
+  .delay-3 { animation-delay: 0.45s; }
+
+  /* MAPLE LEAF DECORATION */
+  .maple-deco {
+    position: absolute;
+    right: 3%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 160px;
+    height: 160px;
+    opacity: 0.04;
+    pointer-events: none;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav ul { display: none; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .rcic-grid { grid-template-columns: 1fr; }
+    .stats-strip { flex-wrap: wrap; }
+    .form-row { grid-template-columns: 1fr; }
+    .newsletter-form { flex-direction: column; }
+    .footer-links { gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Canada<span>Pathway</span></div>
+  <ul>
+    <li><a href="pnp-matcher.html">Pathways</a></li>
+    <li><a href="draws.html">Latest Draws</a></li>
+    <li><a href="crs-calculator.html">Free Tools</a></li>
+    <li><a href="blog.html">Blog</a></li><li><a href="#consult">Get Advice</a></li>
+    <li><a href="#consult" class="nav-cta">Free Assessment</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="maple-deco" viewBox="0 0 100 100" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 5 L55 30 L75 20 L65 40 L90 38 L72 52 L80 75 L58 62 L55 85 L50 70 L45 85 L42 62 L20 75 L28 52 L10 38 L35 40 L25 20 L45 30 Z"/>
+  </svg>
+
+  <div class="hero-grid">
+    <div>
+      <div class="hero-eyebrow fade-up">Canada Immigration Resource</div>
+      <h1 class="fade-up delay-1">Your Path to <em>Permanent Residency</em> Starts Here</h1>
+      <p class="hero-sub fade-up delay-2">Free tools, expert guidance, and up-to-date information on Express Entry, Provincial Nominee Programs, and all Canadian immigration streams.</p>
+      <div class="hero-actions fade-up delay-3">
+        <a href="crs-calculator.html" class="btn-primary">Check Your CRS Score</a>
+        <a href="pnp-matcher.html" class="btn-ghost">Explore Pathways</a>
+      </div>
+      <div class="stats-strip fade-up delay-3">
+        <div class="stat-item">
+          <div class="stat-number">485K+</div>
+          <div class="stat-label">Immigrants admitted 2024</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">80+</div>
+          <div class="stat-label">Immigration programs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">6 mo</div>
+          <div class="stat-label">Avg EE processing time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRS CALCULATOR -->
+    <div class="calc-card fade-up delay-2">
+      <div class="calc-title">Quick CRS Score Estimator</div>
+
+      <div class="calc-score-display">
+        <div class="score-value" id="scoreVal">---</div>
+        <div class="score-label">Estimated CRS Score</div>
+        <div class="score-status" id="scoreStatus">Fill in details below</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Age</label>
+          <select id="age">
+            <option value="">Select age</option>
+            <option value="110">18-17</option>
+            <option value="99">18-35 (peak)</option>
+            <option value="77">36-40</option>
+            <option value="55">41-45</option>
+            <option value="30">46-47</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Education</label>
+          <select id="edu">
+            <option value="">Select level</option>
+            <option value="150">PhD</option>
+            <option value="135">Master's / 2+ yr degree</option>
+            <option value="120">Bachelor's (3 yr)</option>
+            <option value="98">2-yr diploma</option>
+            <option value="64">1-yr diploma</option>
+            <option value="28">High school</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>CLB Language Level</label>
+          <select id="lang">
+            <option value="">Select level</option>
+            <option value="136">CLB 10+ (C2)</option>
+            <option value="124">CLB 9 (C1+)</option>
+            <option value="110">CLB 8 (B2+)</option>
+            <option value="90">CLB 7 (B2)</option>
+            <option value="60">CLB 5-6 (B1)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Canadian Work Experience</label>
+          <select id="work">
+            <option value="">Select years</option>
+            <option value="0">None</option>
+            <option value="35">1 year</option>
+            <option value="46">2-3 years</option>
+            <option value="56">4-5 years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Spouse / Common-law</label>
+          <select id="spouse">
+            <option value="0">No partner / Single</option>
+            <option value="-10">Yes, with partner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Job Offer (LMIA)</label>
+          <select id="joboffer">
+            <option value="0">No offer</option>
+            <option value="50">NOC 00 offer</option>
+            <option value="200">NOC TEER 0/1 offer</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="calcCRS()">Calculate My Score</button>
+    </div>
+  </div>
+</div>
+
+<!-- PATHWAYS -->
+<div class="section-full pathways-bg" id="pathways">
+  <div class="section-inner">
+    <section style="padding: 4rem 0;">
+      <div class="section-label">Immigration Streams</div>
+      <h2>Choose Your Path to Canada</h2>
+      <p class="section-desc">Canada operates over 80 immigration programs. These are the primary federal and provincial streams with the highest approval volumes.</p>
+
+      <div class="pathways-grid">
+        <a href="#" class="pathway-card featured">
+          <span class="pathway-tag tag-hot">Highest Volume</span>
+          <span class="pathway-icon">🍁</span>
+          <h3>Express Entry</h3>
+          <p>Federal points-based system for skilled workers. Covers FSWP, FSTP, and CEC. IRCC issues regular invitations based on CRS score rankings.</p>
+          <div class="pathway-meta">
+            <div class="meta-item">
+              <span class="meta-val">~6 mo</span>
+              <span class="meta-key">Processing</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">481</span>
+              <span class="meta-key">Last cut-off</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">No cap</span>
+              <span class="meta-key">Applications</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="pathway-card">
+          <span class="pathway-tag tag-popular">13 Streams</span>
+          <span class="pathway-icon">🏛️</span>
+          <h3>Provincial Nominee Programs</h3>
+          <p>Each province runs its own nomination streams targeting skills specific to their labor market needs. PNP adds 600 CRS points if you receive a provincial nomination.</p>
+          <div class="pathway-meta">
+            <div class="meta-item">
+              <span class="meta-val">10 provinces</span>
+              <span class="meta-key">Programs</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">+600 pts</span>
+              <span class="meta-key">CRS boost</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="pathway-card">
+          <span class="pathway-tag tag-info">Family</span>
+          <span class="pathway-icon">👨‍👩‍👧</span>
+          <h3>Spousal & Family Sponsorship</h3>
+          <p>Canadian citizens and permanent residents can sponsor spouses, common-law partners, and dependent children for permanent residency.</p>
+          <div class="pathway-meta">
+            <div class="meta-item">
+              <span class="meta-val">12 mo</span>
+              <span class="meta-key">Spousal avg</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">No points</span>
+              <span class="meta-key">Required</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="pathway-card">
+          <span class="pathway-tag tag-new">Growing</span>
+          <span class="pathway-icon">🎓</span>
+          <h3>International Graduate Stream</h3>
+          <p>Graduate from a Canadian designated learning institution, gain work experience, and apply through the Canadian Experience Class or provincial streams.</p>
+          <div class="pathway-meta">
+            <div class="meta-item">
+              <span class="meta-val">3 yrs PGWP</span>
+              <span class="meta-key">Work Permit</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">TEER 0-3</span>
+              <span class="meta-key">NOC required</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="pathway-card">
+          <span class="pathway-tag tag-info">Entrepreneur</span>
+          <span class="pathway-icon">💼</span>
+          <h3>Start-Up Visa Program</h3>
+          <p>For entrepreneurs with innovative business ideas. Requires a commitment from a designated Canadian VC, angel investor, or business incubator.</p>
+          <div class="pathway-meta">
+            <div class="meta-item">
+              <span class="meta-val">12-16 mo</span>
+              <span class="meta-key">Processing</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">$75k+ CAD</span>
+              <span class="meta-key">Angel min.</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="pathway-card">
+          <span class="pathway-tag tag-popular">Caregiver</span>
+          <span class="pathway-icon">🏥</span>
+          <h3>Home Child Care & Home Support</h3>
+          <p>Two-stage program for in-home caregivers. Work permit stage followed by PR application after accumulating required experience in Canada.</p>
+          <div class="pathway-meta">
+            <div class="meta-item">
+              <span class="meta-val">24 mo</span>
+              <span class="meta-key">Exp. required</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-val">TEER 4</span>
+              <span class="meta-key">NOC category</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- LATEST DRAWS -->
+<div class="section-full draws-bg" id="draws">
+  <div class="section-inner">
+    <section style="padding: 4rem 0;">
+      <div class="section-label">Live Data</div>
+      <h2>Recent Express Entry Draws</h2>
+      <p class="section-desc">IRCC conducts draws from the Express Entry pool. Invitation counts and CRS cutoffs vary by draw type.</p>
+
+      <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 10px;">
+        <table class="draws-table">
+          <thead>
+            <tr>
+              <th>Draw #</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Invitations</th>
+              <th>CRS Cutoff</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: var(--text-muted);">#298</td>
+              <td>Jan 22, 2025</td>
+              <td><span class="draw-type-badge badge-pnp">PNP only</span></td>
+              <td>1,800</td>
+              <td class="crs-low">691</td>
+              <td><span class="trend-up">▲ 8</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);">#297</td>
+              <td>Jan 15, 2025</td>
+              <td><span class="draw-type-badge badge-french">French</span></td>
+              <td>7,000</td>
+              <td class="crs-low">379</td>
+              <td><span class="trend-down">▼ 5</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);">#296</td>
+              <td>Jan 8, 2025</td>
+              <td><span class="draw-type-badge badge-ee">General</span></td>
+              <td>3,500</td>
+              <td class="crs-mid">524</td>
+              <td><span class="trend-up">▲ 3</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);">#295</td>
+              <td>Dec 18, 2024</td>
+              <td><span class="draw-type-badge badge-stem">STEM</span></td>
+              <td>1,000</td>
+              <td class="crs-high">491</td>
+              <td><span class="trend-down">▼ 2</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);">#294</td>
+              <td>Dec 11, 2024</td>
+              <td><span class="draw-type-badge badge-pnp">PNP only</span></td>
+              <td>1,500</td>
+              <td class="crs-low">685</td>
+              <td><span class="trend-up">▲ 12</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);">#293</td>
+              <td>Dec 4, 2024</td>
+              <td><span class="draw-type-badge badge-ee">General</span></td>
+              <td>4,750</td>
+              <td class="crs-mid">521</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 1rem;">Data sourced from IRCC.canada.ca. Draws are held approximately every 2 weeks. Sign up below for draw alerts.</p>
+    </section>
+  </div>
+</div>
+
+<!-- FREE TOOLS -->
+<div class="section-full" id="tools" style="background: var(--navy-mid); border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <section style="padding: 4rem 0;">
+      <div class="section-label">Free Resources</div>
+      <h2>Tools Built for Applicants</h2>
+      <p class="section-desc">Every tool is free to use with no signup required. Built on official IRCC scoring formulas.</p>
+
+      <div class="tools-grid">
+        <a href="crs-calculator.html" class="tool-card">
+          <div class="tool-icon">📊</div>
+          <h4>Full CRS Calculator</h4>
+          <p>Complete Comprehensive Ranking System score calculator including adaptability, transferability, and spouse factors.</p>
+          <div class="tool-cta">Calculate score →</div>
+        </a>
+
+        <a href="#" class="tool-card">
+          <div class="tool-icon">🗺️</div>
+          <h4>PNP Eligibility Finder</h4>
+          <p>Answer 8 questions and get matched to provincial streams where your profile qualifies based on published criteria.</p>
+          <div class="tool-cta">Find your streams →</div>
+        </a>
+
+        <a href="#" class="tool-card">
+          <div class="tool-icon">📅</div>
+          <h4>NOC Code Lookup</h4>
+          <p>Search your job title and find the correct TEER category and NOC code required for your EE or PNP application.</p>
+          <div class="tool-cta">Look up NOC →</div>
+        </a>
+
+        <a href="#" class="tool-card">
+          <div class="tool-icon">📋</div>
+          <h4>Document Checklists</h4>
+          <p>Stream-specific document checklists for Express Entry, spousal sponsorship, and PNP applications. Downloadable PDF.</p>
+          <div class="tool-cta">Get checklist →</div>
+        </a>
+
+        <a href="#" class="tool-card">
+          <div class="tool-icon">📈</div>
+          <h4>Draw History Tracker</h4>
+          <p>Visualize CRS cutoff trends across all draw types going back to 2015. Estimate timing for your target score.</p>
+          <div class="tool-cta">View trends →</div>
+        </a>
+
+        <a href="#" class="tool-card">
+          <div class="tool-icon">🔔</div>
+          <h4>Draw Alert System</h4>
+          <p>Receive email notifications within 30 minutes of every new IRCC draw with full breakdown of results.</p>
+          <div class="tool-cta">Set up alerts →</div>
+        </a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- RCIC CONSULTATION -->
+<div class="section-full rcic-bg" id="consult">
+  <div class="section-inner">
+    <section style="padding: 4rem 0;">
+      <div class="section-label">Professional Guidance</div>
+      <div class="rcic-grid">
+        <div>
+          <h2>Get a Free Assessment from a Licensed RCIC</h2>
+          <p style="color: var(--text-muted); margin: 1rem 0 2.5rem; font-size: 1rem; line-height: 1.7;">RCICs (Regulated Canadian Immigration Consultants) are federally licensed and regulated by the College of Immigration and Citizenship Consultants. Our network of RCICs offer a free initial profile review.</p>
+
+          <div class="rcic-features">
+            <div class="rcic-feature">
+              <div class="rcic-feature-icon">✓</div>
+              <div>
+                <h4>Verified RCIC credentials</h4>
+                <p>Every consultant in our network is registered with the CICC and in good standing. We verify credentials annually.</p>
+              </div>
+            </div>
+            <div class="rcic-feature">
+              <div class="rcic-feature-icon">📞</div>
+              <div>
+                <h4>30-minute profile review</h4>
+                <p>Discuss your current score, eligible pathways, and potential strategy to improve your profile before applying.</p>
+              </div>
+            </div>
+            <div class="rcic-feature">
+              <div class="rcic-feature-icon">🔒</div>
+              <div>
+                <h4>No obligation, no sales pressure</h4>
+                <p>The initial call is purely assessment-based. You decide if you want to proceed with retained services.</p>
+              </div>
+            </div>
+            <div class="rcic-feature">
+              <div class="rcic-feature-icon">⚡</div>
+              <div>
+                <h4>Matched to your immigration stream</h4>
+                <p>We match you with an RCIC who specializes in your specific pathway — not a generalist handling 10 different programs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="consult-form">
+          <h3>Request Free Assessment</h3>
+          <p>Takes 60 seconds. We match you within 24 hours.</p>
+
+          <div class="form-single">
+            <input type="text" placeholder="Full name">
+            <input type="email" placeholder="Email address">
+            <input type="text" placeholder="Country of citizenship">
+            <select>
+              <option value="">Target immigration stream</option>
+              <option>Express Entry — FSWP</option>
+              <option>Express Entry — CEC</option>
+              <option>Provincial Nominee Program</option>
+              <option>Spousal Sponsorship</option>
+              <option>Study Permit → PR pathway</option>
+              <option>Start-Up Visa</option>
+              <option>Not sure — need guidance</option>
+            </select>
+            <select>
+              <option value="">Estimated CRS score (if known)</option>
+              <option>Below 400</option>
+              <option>400–450</option>
+              <option>451–480</option>
+              <option>481–500</option>
+              <option>501–520</option>
+              <option>Above 520</option>
+              <option>Haven't calculated yet</option>
+            </select>
+            <button class="submit-btn" onclick="handleSubmit(this)">Request My Free Assessment</button>
+            <p class="form-disclaimer">This is an informational consultation only. No legal advice will be provided without a formal retainer agreement. Information is shared only with matched RCICs.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="newsletter">
+  <div class="newsletter-inner">
+    <div class="section-label" style="justify-content: center;">Stay Updated</div>
+    <h2>Draw Alerts & Policy Updates</h2>
+    <p>Immigration policy changes fast. Get notified of new Express Entry draws, PNP openings, and IRCC policy updates — no fluff, just facts.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="your@email.com">
+      <button onclick="handleSubscribe(this)">Subscribe</button>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Free. Unsubscribe anytime. No spam — typically 2-3 emails per month.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Canada<span>Pathway</span></div>
+    <p class="footer-tagline">Free immigration tools and educational resources for Canada-bound applicants worldwide.</p>
+  </div>
+
+  <div class="footer-links">
+    <div class="footer-col">
+      <h5>Pathways</h5>
+      <ul>
+        <li><a href="#">Express Entry</a></li>
+        <li><a href="#">PNP Programs</a></li>
+        <li><a href="#">Family Sponsorship</a></li>
+        <li><a href="#">Study Permit → PR</a></li>
+        <li><a href="#">Start-Up Visa</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Tools</h5>
+      <ul>
+        <li><a href="#">CRS Calculator</a></li>
+        <li><a href="#">PNP Matcher</a></li>
+        <li><a href="#">NOC Lookup</a></li>
+        <li><a href="#">Draw History</a></li>
+        <li><a href="#">Document Checklist</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <ul>
+        <li><a href="#">Immigration Blog</a></li>
+        <li><a href="#">Draw Archive</a></li>
+        <li><a href="#">RCIC Directory</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<div class="footer-bottom">
+  <p>© 2025 CanadaPathway. Educational resource, not legal advice.</p>
+  <p class="disclaimer">This website provides general immigration information only. It does not constitute legal advice. For advice specific to your situation, consult a Regulated Canadian Immigration Consultant (RCIC) or immigration lawyer licensed in Canada.</p>
+</div>
+
+<script>
+function calcCRS() {
+  const age = parseInt(document.getElementById('age').value) || 0;
+  const edu = parseInt(document.getElementById('edu').value) || 0;
+  const lang = parseInt(document.getElementById('lang').value) || 0;
+  const work = parseInt(document.getElementById('work').value) || 0;
+  const spouse = parseInt(document.getElementById('spouse').value) || 0;
+  const joboffer = parseInt(document.getElementById('joboffer').value) || 0;
+
+  if (!age || !edu || !lang) {
+    document.getElementById('scoreVal').textContent = '---';
+    document.getElementById('scoreStatus').textContent = 'Please fill age, education, and language';
+    document.getElementById('scoreStatus').className = 'score-status';
+    return;
+  }
+
+  const total = Math.min(age + edu + lang + work + spouse + joboffer, 1200);
+  document.getElementById('scoreVal').textContent = total;
+
+  const status = document.getElementById('scoreStatus');
+  if (total >= 490) {
+    status.textContent = 'Strong — Competitive for general draws';
+    status.className = 'score-status good';
+  } else if (total >= 450) {
+    status.textContent = 'Moderate — Explore PNP streams';
+    status.className = 'score-status';
+    status.style.background = 'rgba(200,146,42,0.15)';
+    status.style.color = '#e8b052';
+  } else {
+    status.textContent = 'Below recent cutoffs — Strategy needed';
+    status.className = 'score-status';
+  }
+}
+
+function handleSubmit(btn) {
+  btn.textContent = 'Request sent — check your email';
+  btn.style.background = '#1a7a3a';
+  btn.disabled = true;
+}
+
+function handleSubscribe(btn) {
+  btn.textContent = 'Subscribed!';
+  btn.style.background = '#1a7a3a';
+  btn.disabled = true;
+}
+</script>
+</body>
+</html>

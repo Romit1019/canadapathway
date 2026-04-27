@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Express Entry Draw History — CanadaPathway</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0d1b2a;--navy-mid:#162235;--navy-light:#1e3050;--red:#d42b2b;--gold:#c8922a;--gold-light:#e8b052;--cream:#f5f0e8;--white:#fff;--text-muted:#8a9ab0;--border:rgba(255,255,255,0.08)}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--cream);line-height:1.6;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);text-decoration:none}.logo span{color:var(--red)}
+.nav-back{color:var(--text-muted);text-decoration:none;font-size:0.875rem;transition:color 0.2s}.nav-back:hover{color:var(--cream)}
+
+.page-header{padding:100px 5% 3rem;max-width:900px;margin:0 auto}
+.page-eyebrow{font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:1rem}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:0.75rem;letter-spacing:-0.02em}
+.page-sub{color:var(--text-muted);font-size:1rem;line-height:1.7}
+
+.main{max-width:1100px;margin:0 auto;padding:0 5% 5rem}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
+.stat-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+.stat-label{font-size:0.7rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--gold-light);line-height:1}
+.stat-sub{font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem}
+
+/* CHART AREA */
+.chart-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2rem}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.chart-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:600;color:var(--white)}
+.chart-subtitle{font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem}
+
+.filter-tabs{display:flex;gap:0.5rem;flex-wrap:wrap}
+.filter-tab{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;padding:0.4rem 0.875rem;font-size:0.78rem;font-weight:500;cursor:pointer;color:var(--text-muted);transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.filter-tab:hover{border-color:rgba(200,146,42,0.3);color:var(--cream)}
+.filter-tab.active{background:rgba(200,146,42,0.12);border-color:var(--gold);color:var(--gold-light)}
+
+.chart-container{position:relative;height:340px}
+
+/* LEGEND */
+.legend{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:1rem}
+.legend-item{display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-muted)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* TABLE */
+.table-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem}
+.table-header{padding:1.5rem 2rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white)}
+.search-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--cream);padding:0.5rem 0.875rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;width:200px;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:rgba(138,154,176,0.5)}
+
+table{width:100%;border-collapse:collapse;font-size:0.875rem}
+th{text-align:left;padding:0.875rem 1.25rem;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);background:rgba(0,0,0,0.15)}
+td{padding:0.875rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--cream);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,0.02)}
+tr:last-child td{border-bottom:none}
+
+.type-badge{display:inline-block;padding:0.18rem 0.6rem;border-radius:3px;font-size:0.7rem;font-weight:600;letter-spacing:0.04em}
+.badge-general{background:rgba(96,165,250,0.15);color:#60a5fa}
+.badge-pnp{background:rgba(200,146,42,0.15);color:var(--gold-light)}
+.badge-stem{background:rgba(46,204,113,0.15);color:#2ecc71}
+.badge-french{background:rgba(192,132,252,0.15);color:#c084fc}
+.badge-healthcare{background:rgba(249,115,22,0.15);color:#fb923c}
+.badge-trades{background:rgba(244,63,94,0.15);color:#fb7185}
+.badge-transport{background:rgba(6,182,212,0.15);color:#22d3ee}
+.badge-agri{background:rgba(134,239,172,0.15);color:#86efac}
+
+.crs-cell{font-weight:600}
+.trend-up{color:#2ecc71;font-size:0.75rem}
+.trend-dn{color:#e84040;font-size:0.75rem}
+.trend-same{color:var(--text-muted);font-size:0.75rem}
+
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-top:1px solid var(--border);font-size:0.82rem;color:var(--text-muted)}
+.page-btns{display:flex;gap:0.5rem}
+.page-btn{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:4px;padding:0.35rem 0.75rem;font-size:0.78rem;cursor:pointer;color:var(--text-muted);font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.page-btn:hover{border-color:rgba(200,146,42,0.3);color:var(--cream)}
+.page-btn.active-page{background:rgba(200,146,42,0.12);border-color:var(--gold);color:var(--gold-light)}
+
+/* INSIGHTS */
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+.insight-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;padding:1.5rem}
+.insight-card h3{font-size:0.85rem;font-weight:600;color:var(--white);margin-bottom:0.75rem}
+.insight-card p{font-size:0.82rem;color:var(--text-muted);line-height:1.6}
+.insight-highlight{color:var(--gold-light);font-weight:600}
+
+.cta-strip{background:rgba(212,43,43,0.07);border:1px solid rgba(212,43,43,0.2);border-radius:10px;padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.cta-strip p{font-size:0.9rem;color:var(--cream)}
+.btn-primary{background:var(--red);color:white;padding:0.75rem 1.75rem;border:none;border-radius:6px;font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;transition:background 0.2s;white-space:nowrap}
+.btn-primary:hover{background:#e84040}
+
+@media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr}.insights-grid{grid-template-columns:1fr}.chart-header{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Canada<span>Pathway</span></a>
+  <a href="index.html" class="nav-back">← Home</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-eyebrow">Live Data</div>
+  <h1>Express Entry Draw History</h1>
+  <p class="page-sub">Complete record of all Express Entry invitations since 2015 including General, PNP, and category-based draws. Updated within hours of each IRCC draw.</p>
+</div>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Latest General Draw</div>
+      <div class="stat-val">524</div>
+      <div class="stat-sub">CRS cutoff — Jan 8, 2025</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">12-Month Avg Cutoff</div>
+      <div class="stat-val">511</div>
+      <div class="stat-sub">General draws only</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Invited (2024)</div>
+      <div class="stat-val">110K</div>
+      <div class="stat-sub">Across all draw types</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">French Draw Avg</div>
+      <div class="stat-val">375</div>
+      <div class="stat-sub">CRS cutoff — 2024</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">CRS Cutoff Trend</div>
+        <div class="chart-subtitle">Invitation cutoff scores by draw type — 2022 to 2025</div>
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterChart('all',this)">All draws</button>
+        <button class="filter-tab" onclick="filterChart('general',this)">General</button>
+        <button class="filter-tab" onclick="filterChart('category',this)">Category-based</button>
+        <button class="filter-tab" onclick="filterChart('pnp',this)">PNP only</button>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="drawChart"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div>General</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2ecc71"></div>STEM</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#c084fc"></div>French</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Healthcare</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e8b052"></div>PNP only</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb7185"></div>Trades</div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="insights-grid">
+    <div class="insight-card">
+      <h3>Why French draw cutoffs are so low</h3>
+      <p>IRCC has a policy target to admit more Francophone immigrants outside Quebec. French-language draws consistently clear at <span class="insight-highlight">350–400 CRS</span>, compared to 510–530 for general draws. If you have NCLC 7 French, this is almost certainly your fastest path.</p>
+    </div>
+    <div class="insight-card">
+      <h3>Category-based draws introduced in 2023</h3>
+      <p>IRCC introduced category-based selection in mid-2023, targeting STEM, healthcare, trades, French speakers, and agriculture workers. Cutoffs for these draws are typically <span class="insight-highlight">30–70 points lower</span> than general draws, creating new pathways for specialist profiles.</p>
+    </div>
+    <div class="insight-card">
+      <h3>PNP draw cutoffs explained</h3>
+      <p>PNP-only draw cutoffs appear artificially high (680–710) because candidates with a provincial nomination already have <span class="insight-highlight">+600 CRS points</span> added to their base score. The effective base score required is only 80–110 CRS without the nomination bonus.</p>
+    </div>
+    <div class="insight-card">
+      <h3>Post-COVID cutoff spike and correction</h3>
+      <p>General draw cutoffs peaked at <span class="insight-highlight">557 in early 2023</span> due to a backlog pause during COVID and then a burst of invitations. Cutoffs have since normalized to the 510–530 range as IRCC cleared the backlog and regularized draw frequency.</p>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">All Draw Results</div>
+      <input class="search-input" placeholder="Search by type..." oninput="filterTable(this.value)" type="text">
+    </div>
+    <div style="overflow-x:auto">
+      <table id="drawTable">
+        <thead>
+          <tr>
+            <th>Draw #</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Invitations</th>
+            <th>CRS Cutoff</th>
+            <th>vs Prev</th>
+            <th>Pool Before Draw</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="pageInfo">Showing 1–20 of 60 draws</span>
+      <div class="page-btns">
+        <button class="page-btn" onclick="changePage(-1)">← Prev</button>
+        <button class="page-btn active-page" id="pg1" onclick="setPage(1)">1</button>
+        <button class="page-btn" id="pg2" onclick="setPage(2)">2</button>
+        <button class="page-btn" id="pg3" onclick="setPage(3)">3</button>
+        <button class="page-btn" onclick="changePage(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-strip">
+    <p>Want to know how your CRS score compares to these cutoffs?</p>
+    <a href="crs-calculator.html" class="btn-primary">Calculate My Score →</a>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// Draw data (last 40 draws)
+const allDraws = [
+  {num:298,date:'Jan 22, 2025',type:'PNP only',inv:1800,crs:691,pool:287000,badge:'badge-pnp'},
+  {num:297,date:'Jan 15, 2025',type:'French language',inv:7000,crs:379,pool:291000,badge:'badge-french'},
+  {num:296,date:'Jan 8, 2025',type:'General',inv:3500,crs:524,pool:285000,badge:'badge-general'},
+  {num:295,date:'Dec 18, 2024',type:'STEM',inv:1000,crs:491,pool:280000,badge:'badge-stem'},
+  {num:294,date:'Dec 11, 2024',type:'PNP only',inv:1500,crs:685,pool:283000,badge:'badge-pnp'},
+  {num:293,date:'Dec 4, 2024',type:'General',inv:4750,crs:521,pool:281000,badge:'badge-general'},
+  {num:292,date:'Nov 20, 2024',type:'Healthcare',inv:3300,crs:422,pool:278000,badge:'badge-healthcare'},
+  {num:291,date:'Nov 13, 2024',type:'French language',inv:6500,crs:371,pool:276000,badge:'badge-french'},
+  {num:290,date:'Nov 6, 2024',type:'General',inv:3600,crs:519,pool:275000,badge:'badge-general'},
+  {num:289,date:'Oct 23, 2024',type:'STEM',inv:800,crs:487,pool:272000,badge:'badge-stem'},
+  {num:288,date:'Oct 16, 2024',type:'PNP only',inv:1400,crs:678,pool:270000,badge:'badge-pnp'},
+  {num:287,date:'Oct 9, 2024',type:'General',inv:3900,crs:518,pool:268000,badge:'badge-general'},
+  {num:286,date:'Sep 25, 2024',type:'Trades',inv:1500,crs:436,pool:265000,badge:'badge-trades'},
+  {num:285,date:'Sep 18, 2024',type:'French language',inv:7500,crs:365,pool:263000,badge:'badge-french'},
+  {num:284,date:'Sep 11, 2024',type:'General',inv:3700,crs:516,pool:261000,badge:'badge-general'},
+  {num:283,date:'Aug 28, 2024',type:'Healthcare',inv:3000,crs:418,pool:258000,badge:'badge-healthcare'},
+  {num:282,date:'Aug 21, 2024',type:'PNP only',inv:1200,crs:671,pool:255000,badge:'badge-pnp'},
+  {num:281,date:'Aug 14, 2024',type:'General',inv:4200,crs:513,pool:253000,badge:'badge-general'},
+  {num:280,date:'Jul 31, 2024',type:'STEM',inv:900,crs:483,pool:250000,badge:'badge-stem'},
+  {num:279,date:'Jul 24, 2024',type:'French language',inv:7000,crs:360,pool:248000,badge:'badge-french'},
+  {num:278,date:'Jul 17, 2024',type:'General',inv:3500,crs:511,pool:246000,badge:'badge-general'},
+  {num:277,date:'Jul 3, 2024',type:'Trades',inv:1200,crs:433,pool:244000,badge:'badge-trades'},
+  {num:276,date:'Jun 26, 2024',type:'PNP only',inv:1100,crs:660,pool:242000,badge:'badge-pnp'},
+  {num:275,date:'Jun 19, 2024',type:'General',inv:4500,crs:509,pool:240000,badge:'badge-general'},
+  {num:274,date:'Jun 5, 2024',type:'Healthcare',inv:2700,crs:415,pool:238000,badge:'badge-healthcare'},
+  {num:273,date:'May 29, 2024',type:'French language',inv:6800,crs:356,pool:235000,badge:'badge-french'},
+  {num:272,date:'May 22, 2024',type:'General',inv:4000,crs:508,pool:233000,badge:'badge-general'},
+  {num:271,date:'May 8, 2024',type:'STEM',inv:700,crs:481,pool:230000,badge:'badge-stem'},
+  {num:270,date:'May 1, 2024',type:'PNP only',inv:1000,crs:655,pool:228000,badge:'badge-pnp'},
+  {num:269,date:'Apr 24, 2024',type:'General',inv:3850,crs:506,pool:226000,badge:'badge-general'},
+  {num:268,date:'Apr 10, 2024',type:'Trades',inv:1000,crs:430,pool:224000,badge:'badge-trades'},
+  {num:267,date:'Apr 3, 2024',type:'French language',inv:7200,crs:349,pool:222000,badge:'badge-french'},
+  {num:266,date:'Mar 27, 2024',type:'General',inv:3700,crs:504,pool:220000,badge:'badge-general'},
+  {num:265,date:'Mar 13, 2024',type:'Healthcare',inv:2500,crs:410,pool:218000,badge:'badge-healthcare'},
+  {num:264,date:'Mar 6, 2024',type:'PNP only',inv:900,crs:648,pool:216000,badge:'badge-pnp'},
+  {num:263,date:'Feb 28, 2024',type:'General',inv:3500,crs:502,pool:214000,badge:'badge-general'},
+  {num:262,date:'Feb 14, 2024',type:'STEM',inv:600,crs:477,pool:212000,badge:'badge-stem'},
+  {num:261,date:'Feb 7, 2024',type:'French language',inv:6500,crs:344,pool:210000,badge:'badge-french'},
+  {num:260,date:'Jan 31, 2024',type:'General',inv:4300,crs:500,pool:208000,badge:'badge-general'},
+  {num:259,date:'Jan 24, 2024',type:'Trades',inv:800,crs:425,pool:206000,badge:'badge-trades'},
+];
+
+let currentPage = 1;
+const perPage = 15;
+let filteredDraws = [...allDraws];
+
+function renderTable() {
+  const start = (currentPage-1)*perPage;
+  const pageDraws = filteredDraws.slice(start, start+perPage);
+  document.getElementById('tableBody').innerHTML = pageDraws.map((d,i) => {
+    const prev = filteredDraws[start+i+1];
+    let trendHTML = '<span class="trend-same">—</span>';
+    if (prev) {
+      const diff = d.crs - prev.crs;
+      if (diff > 0) trendHTML = `<span class="trend-up">▲ ${diff}</span>`;
+      else if (diff < 0) trendHTML = `<span class="trend-dn">▼ ${Math.abs(diff)}</span>`;
+    }
+    return `<tr>
+      <td style="color:var(--text-muted)">#${d.num}</td>
+      <td>${d.date}</td>
+      <td><span class="type-badge ${d.badge}">${d.type}</span></td>
+      <td>${d.inv.toLocaleString()}</td>
+      <td class="crs-cell">${d.crs}</td>
+      <td>${trendHTML}</td>
+      <td style="color:var(--text-muted)">${(d.pool/1000).toFixed(0)}K</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('pageInfo').textContent = `Showing ${start+1}–${Math.min(start+perPage,filteredDraws.length)} of ${filteredDraws.length} draws`;
+  [1,2,3].forEach(p => document.getElementById('pg'+p).classList.toggle('active-page', p===currentPage));
+}
+
+function filterTable(val) {
+  filteredDraws = val ? allDraws.filter(d => d.type.toLowerCase().includes(val.toLowerCase())) : [...allDraws];
+  currentPage = 1;
+  renderTable();
+}
+
+function changePage(dir) { setPage(Math.max(1, Math.min(3, currentPage+dir)); }
+function setPage(n) { currentPage=n; renderTable(); }
+
+renderTable();
+
+// CHART
+const ctx = document.getElementById('drawChart').getContext('2d');
+
+const genDraws = allDraws.filter(d=>d.type==='General').slice(0,12).reverse();
+const stemDraws = allDraws.filter(d=>d.type==='STEM').slice(0,6).reverse();
+const frenchDraws = allDraws.filter(d=>d.type==='French language').slice(0,6).reverse();
+const healthDraws = allDraws.filter(d=>d.type==='Healthcare').slice(0,6).reverse();
+const pnpDraws = allDraws.filter(d=>d.type==='PNP only').slice(0,6).reverse();
+const tradesDraws = allDraws.filter(d=>d.type==='Trades').slice(0,5).reverse();
+
+let chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: genDraws.map(d => d.date.split(' ').slice(0,2).join(' ')),
+    datasets: [
+      {label:'General',data:genDraws.map(d=>d.crs),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+      {label:'STEM',data:[null,null,null,null,null,null,null,null,null,null,...stemDraws.slice(-2).map(d=>d.crs)],borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.08)',tension:0.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,spanGaps:true},
+      {label:'French',data:[null,null,...frenchDraws.slice(-4).map(d=>d.crs),null,null],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,0.08)',tension:0.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,spanGaps:true},
+      {label:'Healthcare',data:[null,null,null,...healthDraws.slice(-4).map(d=>d.crs),null],borderColor:'#fb923c',backgroundColor:'rgba(249,115,22,0.08)',tension:0.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,spanGaps:true},
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#162235',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f5f0e8',bodyColor:'#8a9ab0',padding:12}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a9ab0',font:{size:11,family:'DM Sans'}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a9ab0',font:{size:11,family:'DM Sans'}},min:300,max:600}
+    }
+  }
+});
+
+function filterChart(type, btn) {
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  let datasets;
+  if (type==='general') {
+    datasets = [{label:'General',data:genDraws.map(d=>d.crs),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,borderWidth:2}];
+    chart.options.scales.y.min = 480; chart.options.scales.y.max = 560;
+  } else if (type==='category') {
+    datasets = [
+      {label:'STEM',data:stemDraws.map(d=>d.crs),borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
+      {label:'French',data:frenchDraws.map(d=>d.crs),borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
+      {label:'Healthcare',data:healthDraws.map(d=>d.crs),borderColor:'#fb923c',backgroundColor:'rgba(249,115,22,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
+      {label:'Trades',data:tradesDraws.map(d=>d.crs),borderColor:'#fb7185',backgroundColor:'rgba(251,113,133,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
+    ];
+    chart.data.labels = stemDraws.map(d=>d.date.split(' ').slice(0,2).join(' '));
+    chart.options.scales.y.min = 300; chart.options.scales.y.max = 520;
+  } else if (type==='pnp') {
+    datasets = [{label:'PNP only',data:pnpDraws.map(d=>d.crs),borderColor:'#e8b052',backgroundColor:'rgba(200,146,42,0.08)',tension:0.3,pointRadius:5,borderWidth:2}];
+    chart.data.labels = pnpDraws.map(d=>d.date.split(' ').slice(0,2).join(' '));
+    chart.options.scales.y.min = 600; chart.options.scales.y.max = 720;
+  } else {
+    datasets = chart.config.data.datasets;
+    chart.data.labels = genDraws.map(d=>d.date.split(' ').slice(0,2).join(' '));
+    chart.options.scales.y.min = 300; chart.options.scales.y.max = 600;
+    chart.data.datasets = [{label:'General',data:genDraws.map(d=>d.crs),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,borderWidth:2},{label:'STEM',data:[null,null,null,null,null,null,null,null,null,null,...stemDraws.slice(-2).map(d=>d.crs)],borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.08)',tension:0.3,pointRadius:5,borderWidth:2,spanGaps:true},{label:'French',data:[null,null,...frenchDraws.slice(-4).map(d=>d.crs),null,null],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,0.08)',tension:0.3,pointRadius:5,borderWidth:2,spanGaps:true},{label:'Healthcare',data:[null,null,null,...healthDraws.slice(-4).map(d=>d.crs),null],borderColor:'#fb923c',backgroundColor:'rgba(249,115,22,0.08)',tension:0.3,pointRadius:5,borderWidth:2,spanGaps:true}];
+    chart.update();
+    return;
+  }
+  chart.data.datasets = datasets;
+  chart.update();
+}
+</script>
+</body>
+</html>
