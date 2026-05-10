@@ -1,0 +1,114 @@
+name: 🤖 Draw Monitor Agent
+# Runs every 6 hours. Checks IRCC for new draws.
+# If new draw detected: updates site + triggers blog writer + newsletter.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours
+  workflow_dispatch:          # manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  monitor-draws:
+    runs-on: ubuntu-latest
+    outputs:
+      new_draw: ${{ steps.monitor.outputs.new_draw }}
+      draw_number: ${{ steps.monitor.outputs.draw_number }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 anthropic
+
+      - name: Run Draw Monitor Agent
+        id: monitor
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python agents/draw_monitor.py
+
+      - name: Commit updated draws data and HTML
+        run: |
+          git config user.name "PathwayOfCanada Bot"
+          git config user.email "bot@pathwayofcanada.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Draw monitor: updated draws data [$(date -u '+%Y-%m-%d %H:%M')]"
+          git push
+
+  write-draw-article:
+    needs: monitor-draws
+    if: needs.monitor-draws.outputs.new_draw == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic requests beautifulsoup4
+
+      - name: Run Blog Writer Agent (draw article)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          WRITER_MODE: draw_triggered
+        run: python agents/blog_writer.py
+
+      - name: Commit new article
+        run: |
+          git config user.name "PathwayOfCanada Bot"
+          git config user.email "bot@pathwayofcanada.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Blog writer: draw #${{ needs.monitor-draws.outputs.draw_number }} article"
+          git push
+
+  send-draw-alert:
+    needs: [monitor-draws, write-draw-article]
+    if: needs.monitor-draws.outputs.new_draw == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic requests
+
+      - name: Run Newsletter Agent (draw alert)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          NEWSLETTER_MODE: draw_alert
+        run: python agents/newsletter_agent.py
+
+      - name: Commit email log
+        run: |
+          git config user.name "PathwayOfCanada Bot"
+          git config user.email "bot@pathwayofcanada.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Newsletter: draw alert sent"
+          git push

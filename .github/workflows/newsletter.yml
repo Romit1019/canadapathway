@@ -1,0 +1,44 @@
+name: 🤖 Weekly Newsletter Agent
+# Sends a weekly digest every Sunday at 10am UTC.
+
+on:
+  schedule:
+    - cron: '0 10 * * 0'   # Sunday 10am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic requests
+
+      - name: Run Newsletter Agent (weekly digest)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          NEWSLETTER_MODE: weekly_digest
+        run: python agents/newsletter_agent.py
+
+      - name: Commit email log
+        run: |
+          git config user.name "PathwayOfCanada Bot"
+          git config user.email "bot@pathwayofcanada.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Newsletter: weekly digest sent [$(date -u '+%Y-%m-%d')]"
+          git push

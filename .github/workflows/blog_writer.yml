@@ -1,0 +1,55 @@
+name: 🤖 Blog Writer Agent
+# Runs Monday and Thursday at 9am UTC.
+# Writes one SEO article from the topic queue and publishes it.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'    # Monday 9am UTC
+    - cron: '0 9 * * 4'    # Thursday 9am UTC
+  workflow_dispatch:
+    inputs:
+      topic_override:
+        description: 'Optional: override the topic slug to write'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  write-article:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic requests
+
+      - name: Run Blog Writer Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          WRITER_MODE: scheduled
+          TOPIC_OVERRIDE: ${{ github.event.inputs.topic_override }}
+        run: python agents/blog_writer.py
+
+      - name: Commit new article + updated blog index
+        run: |
+          git config user.name "PathwayOfCanada Bot"
+          git config user.email "bot@pathwayofcanada.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Blog writer: published new article [$(date -u '+%Y-%m-%d')]"
+          git push
+
+      - name: Publish summary
+        run: |
+          echo "## Article Published" >> $GITHUB_STEP_SUMMARY
+          echo "New SEO article written and committed. GitHub Pages will deploy in ~60 seconds." >> $GITHUB_STEP_SUMMARY
+          echo "Site: https://pathwayofcanada.com/blog.html" >> $GITHUB_STEP_SUMMARY
