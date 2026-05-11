@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Draw Monitor Agent
-Scrapes IRCC for new Express Entry draws, updates draws.html,
-and triggers the newsletter agent if a new draw is found.
+Pulls Express Entry rounds from IRCC's official JSON dataset, updates
+draws.html, and triggers the newsletter/blog agents if a new draw appears.
 Runs every 6 hours via GitHub Actions.
 """
 
@@ -15,10 +15,11 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
-from bs4 import BeautifulSoup
 import anthropic
 
-IRCC_DRAWS_URL = "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/submit-profile/rounds-invitations.html"
+# IRCC Open Data — Express Entry rounds (official, JSON, stable)
+IRCC_JSON_URL = "https://www.canada.ca/content/dam/ircc/documents/json/ee_rounds_123_en.json"
+
 DRAWS_JSON = Path(__file__).parent.parent / "data" / "draws.json"
 DRAWS_HTML = Path(__file__).parent.parent / "draws.html"
 STATE_FILE = Path(__file__).parent.parent / "data" / "last_draw_hash.txt"
@@ -28,44 +29,55 @@ client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
 def fetch_ircc_draws():
-    """Fetch the draws page from IRCC and parse the table."""
+    """Fetch the IRCC JSON dataset and normalize fields."""
     headers = {
-        "User-Agent": "Mozilla/5.0 (compatible; CanadaPathway/1.0; +https://pathwayofcanada.com)"
+        "User-Agent": "Mozilla/5.0 (compatible; CanadaPathway/1.0; +https://pathwayofcanada.com)",
+        "Accept": "application/json,text/plain,*/*",
     }
     try:
-        resp = requests.get(IRCC_DRAWS_URL, headers=headers, timeout=30)
+        resp = requests.get(IRCC_JSON_URL, headers=headers, timeout=30)
         resp.raise_for_status()
     except Exception as e:
-        print(f"[DrawMonitor] Failed to fetch IRCC page: {e}")
+        print(f"[DrawMonitor] Failed to fetch IRCC JSON: {e}")
         return []
 
-    soup = BeautifulSoup(resp.text, "html.parser")
+    try:
+        data = resp.json()
+    except Exception as e:
+        print(f"[DrawMonitor] Failed to parse JSON: {e}")
+        return []
+
+    rounds = data.get("rounds") or data.get("Rounds") or []
+    if not rounds:
+        print("[DrawMonitor] JSON contained no rounds")
+        return []
+
     draws = []
+    for r in rounds[:40]:
+        number = str(r.get("drawNumber") or r.get("drawNumberURL") or "").strip()
+        date_full = (r.get("drawDateFull") or r.get("drawDate") or "").strip()
+        draw_type = (r.get("drawName") or r.get("drawText2") or "General").strip()
+        invitations = re.sub(r"[^\d]", "", str(r.get("drawSize") or "0"))
+        crs = re.sub(r"[^\d]", "", str(r.get("drawCRS") or "0"))
+        tie = (r.get("drawCutOff") or "").strip()
 
-    table = soup.find("table")
-    if not table:
-        print("[DrawMonitor] No table found on IRCC page")
-        return []
-
-    rows = table.find_all("tr")[1:]  # skip header
-    for row in rows[:40]:  # last 40 draws
-        cols = [c.get_text(strip=True) for c in row.find_all(["td", "th"])]
-        if len(cols) < 4:
+        if not number or not date_full:
             continue
+
         draws.append({
-            "number": cols[0].replace("#", "").strip(),
-            "date": cols[1].strip(),
-            "type": cols[2].strip(),
-            "invitations": cols[3].replace(",", "").strip(),
-            "crs": cols[4].strip() if len(cols) > 4 else "N/A",
-            "tie_breaking": cols[5].strip() if len(cols) > 5 else "N/A",
+            "number": number,
+            "date": date_full,
+            "type": draw_type,
+            "invitations": invitations or "0",
+            "crs": crs or "N/A",
+            "tie_breaking": tie or "N/A",
         })
 
+    print(f"[DrawMonitor] Parsed {len(draws)} draws from IRCC JSON")
     return draws
 
 
 def get_draw_hash(draws):
-    """Hash the latest draw to detect changes."""
     if not draws:
         return ""
     latest = json.dumps(draws[0], sort_keys=True)
@@ -84,7 +96,6 @@ def save_hash(h):
 
 
 def classify_draw_type(raw_type):
-    """Normalize IRCC draw type strings to our badge classes."""
     t = raw_type.lower()
     if "provincial" in t or "pnp" in t:
         return ("PNP only", "badge-pnp")
@@ -98,6 +109,8 @@ def classify_draw_type(raw_type):
         return ("Trades", "badge-trades")
     if "agriculture" in t or "agri" in t:
         return ("Agriculture", "badge-agri")
+    if "education" in t:
+        return ("Education", "badge-education")
     return ("General", "badge-general")
 
 
@@ -109,7 +122,6 @@ def save_draws_json(draws):
 
 
 def ai_analyze_draw(draw):
-    """Use Claude to write a 2-sentence analysis of the latest draw."""
     prompt = f"""You are an expert on Canadian immigration. Write exactly 2 crisp sentences analyzing this Express Entry draw for applicants. Be specific, factual, and helpful. No fluff.
 
 Draw details:
@@ -130,21 +142,17 @@ Output only the 2 sentences, nothing else."""
 
 
 def update_draws_html(draws):
-    """Rebuild the table rows in draws.html with fresh data."""
     if not DRAWS_HTML.exists():
         print("[DrawMonitor] draws.html not found, skipping HTML update")
         return
 
     html = DRAWS_HTML.read_text()
-
-    # Build new table rows
     rows_html = ""
     prev_crs = None
     for i, d in enumerate(draws[:40]):
         draw_type, badge_class = classify_draw_type(d["type"])
         crs = d["crs"]
 
-        # Trend vs previous draw of same type
         trend = "—"
         if prev_crs and crs.isdigit() and prev_crs.isdigit():
             diff = int(crs) - int(prev_crs)
@@ -155,7 +163,6 @@ def update_draws_html(draws):
         if crs.isdigit():
             prev_crs = crs
 
-        # CRS color class
         crs_int = int(crs) if crs.isdigit() else 0
         if crs_int >= 500:
             crs_class = "crs-high"
@@ -164,17 +171,21 @@ def update_draws_html(draws):
         else:
             crs_class = "crs-low"
 
+        try:
+            inv_fmt = f"{int(d['invitations']):,}"
+        except ValueError:
+            inv_fmt = d['invitations']
+
         rows_html += f"""<tr>
       <td style="color:var(--text-muted)">#{d['number']}</td>
       <td>{d['date']}</td>
       <td><span class="type-badge {badge_class}">{draw_type}</span></td>
-      <td>{int(d['invitations']):,}</td>
+      <td>{inv_fmt}</td>
       <td class="crs-cell {crs_class}">{crs}</td>
       <td>{trend}</td>
       <td style="color:var(--text-muted)">—</td>
     </tr>"""
 
-    # Replace tbody content
     new_html = re.sub(
         r'<tbody id="tableBody">.*?</tbody>',
         f'<tbody id="tableBody">{rows_html}</tbody>',
@@ -182,7 +193,6 @@ def update_draws_html(draws):
         flags=re.DOTALL
     )
 
-    # Update stat cards
     latest = draws[0] if draws else {}
     if latest.get("crs", "").isdigit():
         latest_crs = latest["crs"]
@@ -197,7 +207,6 @@ def update_draws_html(draws):
 
 
 def write_new_draw_flag(draw, analysis):
-    """Write a flag file so the blog agent knows to create a draw article."""
     flag = {
         "draw": draw,
         "analysis": analysis,
@@ -233,12 +242,9 @@ def main():
         print(f"[DrawMonitor] Analysis: {analysis}")
         write_new_draw_flag(draws[0], analysis)
         save_hash(current_hash)
-        # Signal to GitHub Actions
-        print("::set-output name=new_draw::true")
-        print(f"::set-output name=draw_number::{draws[0]['number']}")
+        print(f"::notice::New draw detected #{draws[0]['number']}")
     else:
         print("[DrawMonitor] No new draw, nothing to publish")
-        print("::set-output name=new_draw::false")
 
 
 if __name__ == "__main__":
