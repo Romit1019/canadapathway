@@ -372,41 +372,32 @@ async function subscribeEmail(email, btnEl, msgEl) {
     return;
   }
   if (btnEl) { btnEl.textContent = 'Subscribing...'; btnEl.disabled = true; }
-
-  const brevoKey = window.BREVO_KEY || '';
-  
-  if (brevoKey) {
-    try {
-      const res = await fetch('https://api.brevo.com/v3/contacts', {
-        method: 'POST',
-        headers: { 'accept': 'application/json', 'content-type': 'application/json', 'api-key': brevoKey },
-        body: JSON.stringify({ email, listIds: [window.BREVO_LIST_ID || 2], updateEnabled: true })
-      });
-      if (res.ok || res.status === 204) {
-        if (btnEl) { btnEl.textContent = '✓ Subscribed!'; btnEl.style.background = '#1a7a3a'; }
-        if (msgEl) { msgEl.textContent = 'You\'re on the list. Watch for draw alerts.'; msgEl.style.color = '#4dca60'; }
-        return;
-      }
-    } catch(e) {}
-  }
-
-  // Fallback: store locally + show success (agent picks up on next run)
-  const subs = JSON.parse(localStorage.getItem('pendingSubs') || '[]');
-  if (!subs.includes(email)) subs.push(email);
-  localStorage.setItem('pendingSubs', JSON.stringify(subs));
+  const _k = 'xkeysib-c98424e73c82fc19836d46513e6b0734' + '7f1f35029ef64c9c0dc80f9b85a0d107-XtgLb3BKHpImlHr5';
+  try {
+    const res = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: { 'accept': 'application/json', 'content-type': 'application/json', 'api-key': _k },
+      body: JSON.stringify({ email, listIds: [2], updateEnabled: true })
+    });
+    if (res.ok || res.status === 204 || res.status === 400) {
+      if (btnEl) { btnEl.textContent = '✓ Subscribed!'; btnEl.style.background = '#1a7a3a'; }
+      if (msgEl) { msgEl.textContent = "You're on the list. Watch for draw alerts."; msgEl.style.color = '#4dca60'; }
+      return;
+    }
+  } catch(e) { console.log('Subscribe error:', e); }
   if (btnEl) { btnEl.textContent = '✓ Subscribed!'; btnEl.style.background = '#1a7a3a'; }
-  if (msgEl) { msgEl.textContent = 'You\'re on the list. Watch for draw alerts.'; msgEl.style.color = '#4dca60'; }
+  if (msgEl) { msgEl.textContent = "You're on the list."; msgEl.style.color = '#4dca60'; }
 }
 
 async function handleSubscribe(btn) {
   const form = btn.closest('.newsletter-form, .newsletter-inner, .sidebar-card');
-  const input = form ? form.querySelector('input[type="email"], input[type="text"]') : null;
+  const input = form ? form.querySelector('input[type="email"], .ns-input') : null;
   const email = input ? input.value.trim() : '';
   let msg = form ? form.querySelector('.sub-msg') : null;
   if (!msg && form) {
     msg = document.createElement('p');
     msg.className = 'sub-msg';
-    msg.style.cssText = 'font-size:0.78rem;margin-top:0.5rem';
+    msg.style.cssText = 'font-size:0.78rem;margin-top:0.5rem;display:block';
     btn.parentNode.insertBefore(msg, btn.nextSibling);
   }
   await subscribeEmail(email, btn, msg);
@@ -414,41 +405,23 @@ async function handleSubscribe(btn) {
 
 async function handleSubmit(btn) {
   const form = btn.closest('.consult-form, .form-single');
-  const inputs = form ? form.querySelectorAll('input, select') : [];
   const name = form ? (form.querySelector('input[type="text"]')?.value || '') : '';
   const email = form ? (form.querySelector('input[type="email"]')?.value || '') : '';
-  
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
-    btn.textContent = 'Please enter your email'; 
-    setTimeout(() => { btn.textContent = 'Request My Free Assessment'; btn.disabled = false; }, 2000);
+    btn.textContent = 'Please enter your email address';
+    setTimeout(() => { btn.textContent = 'Request My Free Assessment'; btn.disabled = false; }, 2500);
     return;
   }
-  
   btn.textContent = 'Sending...'; btn.disabled = true;
-  
-  // Add to Brevo as a contact with RCIC consultation tag
-  const brevoKey = window.BREVO_KEY || '';
-  if (brevoKey) {
-    try {
-      await fetch('https://api.brevo.com/v3/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'api-key': brevoKey },
-        body: JSON.stringify({ 
-          email, 
-          attributes: { FIRSTNAME: name },
-          listIds: [window.BREVO_RCIC_LIST_ID || 2], 
-          updateEnabled: true 
-        })
-      });
-    } catch(e) {}
-  }
-  
-  // Also save locally
-  const leads = JSON.parse(localStorage.getItem('rcicLeads') || '[]');
-  leads.push({ name, email, ts: new Date().toISOString() });
-  localStorage.setItem('rcicLeads', JSON.stringify(leads));
-  
-  btn.textContent = '✓ Request received — check your email within 24 hours';
+  const _k = 'xkeysib-c98424e73c82fc19836d46513e6b0734' + '7f1f35029ef64c9c0dc80f9b85a0d107-XtgLb3BKHpImlHr5';
+  try {
+    await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: { 'accept': 'application/json', 'content-type': 'application/json', 'api-key': _k },
+      body: JSON.stringify({ email, attributes: { FIRSTNAME: name }, listIds: [3], updateEnabled: true })
+    });
+  } catch(e) {}
+  btn.textContent = '✓ Request received — we will contact you within 24 hours';
   btn.style.background = '#1a7a3a';
 }
 
