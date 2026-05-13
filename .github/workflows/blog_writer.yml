@@ -46,7 +46,7 @@ jobs:
           git config user.email "bot@pathwayofcanada.com"
           git add -A
           git diff --staged --quiet || git commit -m "🤖 Blog writer: published new article [$(date -u '+%Y-%m-%d')]"
-          git push
+          git pull --rebase origin main && git push
 
       - name: Publish summary
         run: |

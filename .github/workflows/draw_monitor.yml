@@ -43,7 +43,7 @@ jobs:
           git config user.email "bot@pathwayofcanada.com"
           git add -A
           git diff --staged --quiet || git commit -m "🤖 Draw monitor: updated draws data [$(date -u '+%Y-%m-%d %H:%M')]"
-          git push
+          git pull --rebase origin main && git push
 
   write-draw-article:
     needs: monitor-draws
@@ -76,7 +76,7 @@ jobs:
           git config user.email "bot@pathwayofcanada.com"
           git add -A
           git diff --staged --quiet || git commit -m "🤖 Blog writer: draw #${{ needs.monitor-draws.outputs.draw_number }} article"
-          git push
+          git pull --rebase origin main && git push
 
   send-draw-alert:
     needs: [monitor-draws, write-draw-article]
@@ -111,4 +111,4 @@ jobs:
           git config user.email "bot@pathwayofcanada.com"
           git add -A
           git diff --staged --quiet || git commit -m "🤖 Newsletter: draw alert sent"
-          git push
+          git pull --rebase origin main && git push
