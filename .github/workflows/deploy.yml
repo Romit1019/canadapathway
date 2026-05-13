@@ -26,19 +26,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
 
-      - name: Write encoded config to branch
+      - name: Write config to branch
         env:
           BK: ${{ secrets.BREVO_NEWS_LETTER }}
-          LID: ${{ secrets.BREVO_LIST_ID || '2' }}
-          RID: ${{ secrets.BREVO_RCIC_LIST_ID || '3' }}
         run: |
-          ENCODED=$(printf '%s' "$BK" | base64 -w 0)
-          cat > config.js << EOF
-          window._bk = atob('${ENCODED}');
-          window.BREVO_LIST_ID = ${LID:-2};
-          window.BREVO_RCIC_LIST_ID = ${RID:-3};
-          EOF
+          python3 - << 'PYEOF'
+          import os
+          key = os.environ['BK']
+          codes = ','.join(str(ord(c)) for c in key)
+          with open('config.js', 'w') as f:
+              f.write(f'window._bk=String.fromCharCode({codes});\n')
+              f.write('window.BREVO_LIST_ID=2;\n')
+              f.write('window.BREVO_RCIC_LIST_ID=3;\n')
+          print(f"config.js written — {len(key)} char key encoded as {len(codes.split(','))} char codes")
+          PYEOF
           git config user.name "PathwayOfCanada Bot"
           git config user.email "bot@pathwayofcanada.com"
           git add config.js
