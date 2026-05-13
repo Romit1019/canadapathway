@@ -1,11 +1,7 @@
 // PathwayOfCanada — Site Configuration
-// Add your Brevo API key and list IDs here.
-// IMPORTANT: Use a restricted Brevo API key with ONLY "Contacts" write permission.
-// Get it from: app.brevo.com → Settings → API Keys → Create API Key → Check "Contacts" only
+// Paste your Brevo API key below (contacts write-only permission is sufficient).
+// Get it: app.brevo.com → Settings → API Keys → Create restricted key (Contacts only)
 
-window.BREVO_KEY = '';          // Paste your Brevo API key here (contacts write-only)
-window.BREVO_LIST_ID = 1;       // Your Brevo newsletter list ID (find in Contacts → Lists)
-window.BREVO_RCIC_LIST_ID = 2;  // Your Brevo RCIC leads list ID (create a second list)
-window.BREVO_KEY = 'YOUR_BREVO_API_KEY';   // from app.brevo.com → Settings → API Keys
-window.BREVO_LIST_ID = 1;                   // your newsletter list ID
-window.BREVO_RCIC_LIST_ID = 2;              // create a second list for RCIC leads
+window.BREVO_KEY = '';          // ← paste your Brevo API key here
+window.BREVO_LIST_ID = 2;       // ← your newsletter list ID (Contacts → Lists in Brevo)
+window.BREVO_RCIC_LIST_ID = 3;  // ← create a second list for RCIC consultation leads

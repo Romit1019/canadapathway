@@ -111,8 +111,8 @@ h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-we
     <p class="page-sub">Draw analysis, policy updates, PNP stream openings, and strategy guides — written for applicants, not lawyers.</p>
   </div>
   <div class="search-bar">
-    <input class="search-input" placeholder="Search articles..." type="text">
-    <button class="search-btn">Search</button>
+    <input class="search-input" placeholder="Search articles..." type="text" id="blogSearch" onkeydown="if(event.key==='Enter') searchArticles()">
+    <button class="search-btn" onclick="searchArticles()">Search</button>
   </div>
 </div>
 
@@ -330,15 +330,41 @@ h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-we
 
 </div>
 
+
 <script>
-document.querySelectorAll('.cat').forEach(c=>{
-  c.addEventListener('click',()=>{
-    document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));
-    c.classList.add('active');
-  });
-});
-</script>
-<script>
+function calcCRS() {
+  const age = parseInt(document.getElementById('age').value) || 0;
+  const edu = parseInt(document.getElementById('edu').value) || 0;
+  const lang = parseInt(document.getElementById('lang').value) || 0;
+  const work = parseInt(document.getElementById('work').value) || 0;
+  const spouse = parseInt(document.getElementById('spouse').value) || 0;
+  const joboffer = parseInt(document.getElementById('joboffer').value) || 0;
+
+  if (!age || !edu || !lang) {
+    document.getElementById('scoreVal').textContent = '---';
+    document.getElementById('scoreStatus').textContent = 'Please fill age, education, and language';
+    document.getElementById('scoreStatus').className = 'score-status';
+    return;
+  }
+
+  const total = Math.min(age + edu + lang + work + spouse + joboffer, 1200);
+  document.getElementById('scoreVal').textContent = total;
+
+  const status = document.getElementById('scoreStatus');
+  if (total >= 490) {
+    status.textContent = 'Strong — Competitive for general draws';
+    status.className = 'score-status good';
+  } else if (total >= 450) {
+    status.textContent = 'Moderate — Explore PNP streams';
+    status.className = 'score-status';
+    status.style.background = 'rgba(200,146,42,0.15)';
+    status.style.color = '#e8b052';
+  } else {
+    status.textContent = 'Below recent cutoffs — Strategy needed';
+    status.className = 'score-status';
+  }
+}
+
 
 async function subscribeEmail(email, btnEl, msgEl) {
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
@@ -434,6 +460,43 @@ document.querySelectorAll('.cat').forEach(c=>{
     document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));
     c.classList.add('active');
   });
+});
+</script>
+<script>
+// Category filter
+document.querySelectorAll('.cat').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.cat').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    filterByCategory(c.textContent.trim());
+  });
+});
+
+function filterByCategory(cat) {
+  const cards = document.querySelectorAll('.article-card');
+  cards.forEach(card => {
+    const cardCat = card.querySelector('.card-cat')?.textContent || '';
+    card.style.display = (cat === 'All' || cardCat.includes(cat)) ? '' : 'none';
+  });
+}
+
+// Article search
+function searchArticles() {
+  const q = document.getElementById('blogSearch')?.value?.toLowerCase().trim() || '';
+  const cards = document.querySelectorAll('.article-card');
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+}
+
+// Load more (shows hidden cards)
+let visibleCount = 9;
+document.querySelector('.load-more')?.addEventListener('click', function() {
+  const cards = [...document.querySelectorAll('.article-card')];
+  cards.slice(visibleCount, visibleCount + 6).forEach(c => c.style.display = '');
+  visibleCount += 6;
+  if (visibleCount >= cards.length) this.style.display = 'none';
 });
 </script>
 </body>
