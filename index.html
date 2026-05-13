@@ -1469,8 +1469,8 @@ async function subscribeEmail(email, btnEl, msgEl) {
     try {
       const res = await fetch('https://api.brevo.com/v3/contacts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'api-key': brevoKey },
-        body: JSON.stringify({ email, listIds: [window.BREVO_LIST_ID || 1], updateEnabled: true })
+        headers: { 'accept': 'application/json', 'content-type': 'application/json', 'api-key': brevoKey },
+        body: JSON.stringify({ email, listIds: [window.BREVO_LIST_ID || 2], updateEnabled: true })
       });
       if (res.ok || res.status === 204) {
         if (btnEl) { btnEl.textContent = '✓ Subscribed!'; btnEl.style.background = '#1a7a3a'; }
