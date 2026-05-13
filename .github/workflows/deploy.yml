@@ -14,6 +14,9 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     environment:
@@ -23,6 +26,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Inject Brevo key into config.js
+        env:
+          BREVO_KEY: ${{ secrets.BREVO_KEY }}
+          BREVO_LIST_ID: ${{ secrets.BREVO_LIST_ID || '2' }}
+          BREVO_RCIC_LIST_ID: ${{ secrets.BREVO_RCIC_LIST_ID || '3' }}
+        run: |
+          cat > config.js << JSEOF
+          window.BREVO_KEY = '${BREVO_KEY}';
+          window.BREVO_LIST_ID = ${BREVO_LIST_ID:-2};
+          window.BREVO_RCIC_LIST_ID = ${BREVO_RCIC_LIST_ID:-3};
+          JSEOF
+          echo "config.js generated"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
