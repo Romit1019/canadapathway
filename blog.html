@@ -372,7 +372,7 @@ async function subscribeEmail(email, btnEl, msgEl) {
     return;
   }
   if (btnEl) { btnEl.textContent = 'Subscribing...'; btnEl.disabled = true; }
-  const _k = 'xkeysib-c98424e73c82fc19836d46513e6b0734' + '7f1f35029ef64c9c0dc80f9b85a0d107-XtgLb3BKHpImlHr5';
+  const _k = window._bk || '';
   try {
     const res = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
@@ -413,7 +413,7 @@ async function handleSubmit(btn) {
     return;
   }
   btn.textContent = 'Sending...'; btn.disabled = true;
-  const _k = 'xkeysib-c98424e73c82fc19836d46513e6b0734' + '7f1f35029ef64c9c0dc80f9b85a0d107-XtgLb3BKHpImlHr5';
+  const _k = window._bk || '';
   try {
     await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',

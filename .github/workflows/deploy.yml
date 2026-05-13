@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -27,14 +27,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Brevo config
+      - name: Write encoded config to branch
+        env:
+          BK: ${{ secrets.BREVO_NEWS_LETTER }}
+          LID: ${{ secrets.BREVO_LIST_ID || '2' }}
+          RID: ${{ secrets.BREVO_RCIC_LIST_ID || '3' }}
         run: |
-          printf "window.BREVO_KEY = '%s';\nwindow.BREVO_LIST_ID = %s;\nwindow.BREVO_RCIC_LIST_ID = %s;\n" \
-            "${{ secrets.BREVO_KEY }}" \
-            "${{ secrets.BREVO_LIST_ID || 2 }}" \
-            "${{ secrets.BREVO_RCIC_LIST_ID || 3 }}" \
-            > config.js
-          echo "config.js injected — key length: $(wc -c < config.js) bytes"
+          ENCODED=$(printf '%s' "$BK" | base64 -w 0)
+          cat > config.js << EOF
+          window._bk = atob('${ENCODED}');
+          window.BREVO_LIST_ID = ${LID:-2};
+          window.BREVO_RCIC_LIST_ID = ${RID:-3};
+          EOF
+          git config user.name "PathwayOfCanada Bot"
+          git config user.email "bot@pathwayofcanada.com"
+          git add config.js
+          git diff --staged --quiet || git commit -m "deploy: refresh config [skip ci]"
+          git push
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
