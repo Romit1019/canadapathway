@@ -502,67 +502,180 @@ tr:last-child td{border-bottom:none}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-// Real IRCC data — auto-updated by draw monitor agent
-const cecLabels = ["November 12 2025", "November 26 2025", "December 10 2025", "December 16 2025", "January 7 2026", "January 21 2026", "February 17 2026", "March 3 2026", "March 17 2026", "March 31 2026", "April 14 2026", "April 28 2026"];
-const cecCRS = [533, 531, 520, 515, 511, 509, 508, 508, 507, 509, 515, 514];
-const frLabels = ["October 29 2025", "November 28 2025", "December 17 2025", "February 6 2026", "March 4 2026", "March 18 2026", "April 15 2026", "April 29 2026"];
-const frCRS = [416, 408, 399, 400, 397, 393, 419, 400];
-const hLabels = ["November 14 2025", "December 11 2025", "February 19 2026", "February 20 2026"];
-const hCRS = [462, 476, 169, 467];
-const tLabels = ["April 2 2026"];
-const tCRS = [477];
+// ── Real IRCC data (auto-updated by draw monitor agent) ──────────────────
+const allDraws = [
+  {num:415,date:"May 11, 2026",type:"PNP only",inv:380,crs:798,badge:"badge-pnp"},
+  {num:414,date:"April 29, 2026",type:"French language",inv:4000,crs:400,badge:"badge-french"},
+  {num:413,date:"April 28, 2026",type:"General",inv:2000,crs:514,badge:"badge-general"},
+  {num:412,date:"April 27, 2026",type:"PNP only",inv:473,crs:795,badge:"badge-pnp"},
+  {num:411,date:"April 15, 2026",type:"French language",inv:4000,crs:419,badge:"badge-french"},
+  {num:410,date:"April 14, 2026",type:"General",inv:2000,crs:515,badge:"badge-general"},
+  {num:409,date:"April 13, 2026",type:"PNP only",inv:324,crs:786,badge:"badge-pnp"},
+  {num:408,date:"April 2, 2026",type:"Trades",inv:3000,crs:477,badge:"badge-trades"},
+  {num:407,date:"March 31, 2026",type:"General",inv:2250,crs:509,badge:"badge-general"},
+  {num:406,date:"March 30, 2026",type:"PNP only",inv:356,crs:802,badge:"badge-pnp"},
+  {num:405,date:"March 18, 2026",type:"French language",inv:4000,crs:393,badge:"badge-french"},
+  {num:404,date:"March 17, 2026",type:"General",inv:4000,crs:507,badge:"badge-general"},
+  {num:403,date:"March 16, 2026",type:"PNP only",inv:362,crs:742,badge:"badge-pnp"},
+  {num:402,date:"March 5, 2026",type:"Senior Managers",inv:250,crs:429,badge:"badge-general"},
+  {num:401,date:"March 4, 2026",type:"French language",inv:5500,crs:397,badge:"badge-french"},
+  {num:400,date:"March 3, 2026",type:"General",inv:4000,crs:508,badge:"badge-general"},
+  {num:399,date:"March 2, 2026",type:"PNP only",inv:264,crs:710,badge:"badge-pnp"},
+  {num:398,date:"February 20, 2026",type:"Healthcare",inv:4000,crs:467,badge:"badge-healthcare"},
+  {num:397,date:"February 19, 2026",type:"Healthcare",inv:391,crs:169,badge:"badge-healthcare"},
+  {num:396,date:"February 17, 2026",type:"General",inv:6000,crs:508,badge:"badge-general"},
+  {num:395,date:"February 16, 2026",type:"PNP only",inv:279,crs:789,badge:"badge-pnp"},
+  {num:394,date:"February 6, 2026",type:"French language",inv:8500,crs:400,badge:"badge-french"},
+  {num:393,date:"February 3, 2026",type:"PNP only",inv:423,crs:749,badge:"badge-pnp"},
+  {num:392,date:"January 21, 2026",type:"General",inv:6000,crs:509,badge:"badge-general"},
+  {num:391,date:"January 20, 2026",type:"PNP only",inv:681,crs:746,badge:"badge-pnp"},
+  {num:390,date:"January 7, 2026",type:"General",inv:8000,crs:511,badge:"badge-general"},
+  {num:389,date:"January 5, 2026",type:"PNP only",inv:574,crs:711,badge:"badge-pnp"},
+  {num:388,date:"December 17, 2025",type:"French language",inv:6000,crs:399,badge:"badge-french"},
+  {num:387,date:"December 16, 2025",type:"General",inv:5000,crs:515,badge:"badge-general"},
+  {num:386,date:"December 15, 2025",type:"PNP only",inv:399,crs:731,badge:"badge-pnp"},
+  {num:385,date:"December 11, 2025",type:"Healthcare",inv:1000,crs:476,badge:"badge-healthcare"},
+  {num:384,date:"December 10, 2025",type:"General",inv:6000,crs:520,badge:"badge-general"},
+  {num:383,date:"December 8, 2025",type:"PNP only",inv:1123,crs:729,badge:"badge-pnp"},
+  {num:382,date:"November 28, 2025",type:"French language",inv:6000,crs:408,badge:"badge-french"},
+  {num:381,date:"November 26, 2025",type:"General",inv:1000,crs:531,badge:"badge-general"},
+  {num:380,date:"November 25, 2025",type:"PNP only",inv:777,crs:699,badge:"badge-pnp"},
+  {num:379,date:"November 14, 2025",type:"Healthcare",inv:3500,crs:462,badge:"badge-healthcare"},
+  {num:378,date:"November 12, 2025",type:"General",inv:1000,crs:533,badge:"badge-general"},
+  {num:377,date:"November 10, 2025",type:"PNP only",inv:714,crs:738,badge:"badge-pnp"},
+  {num:376,date:"October 29, 2025",type:"French language",inv:6000,crs:416,badge:"badge-french"}
+];
+
+// Typed subsets for chart series
+const cecData   = { labels: ["November 12, 2025", "November 26, 2025", "December 10, 2025", "December 16, 2025", "January 7, 2026", "January 21, 2026", "February 17, 2026", "March 3, 2026", "March 17, 2026", "March 31, 2026", "April 14, 2026", "April 28, 2026"],  crs: [533, 531, 520, 515, 511, 509, 508, 508, 507, 509, 515, 514] };
+const frData    = { labels: ["October 29, 2025", "November 28, 2025", "December 17, 2025", "February 6, 2026", "March 4, 2026", "March 18, 2026", "April 15, 2026", "April 29, 2026"],   crs: [416, 408, 399, 400, 397, 393, 419, 400] };
+const hlthData  = { labels: ["November 14, 2025", "December 11, 2025", "February 19, 2026", "February 20, 2026"], crs: [462, 476, 169, 467] };
+const trdData   = { labels: ["April 2, 2026"],  crs: [477] };
+const pnpData   = { labels: ["November 10, 2025", "November 25, 2025", "December 8, 2025", "December 15, 2025", "January 5, 2026", "January 20, 2026", "February 3, 2026", "February 16, 2026", "March 2, 2026", "March 16, 2026", "March 30, 2026", "April 13, 2026", "April 27, 2026", "May 11, 2026"],  crs: [738, 699, 729, 731, 711, 746, 749, 789, 710, 742, 802, 786, 795, 798] };
+
+// ── TABLE ────────────────────────────────────────────────────────────────
+let currentPage = 1;
+const perPage = 20;
+let filteredDraws = [...allDraws];
+
+function renderTable() {
+  const start = (currentPage - 1) * perPage;
+  const slice = filteredDraws.slice(start, start + perPage);
+  document.getElementById('tableBody').innerHTML = slice.map((d, i) => {
+    const prevCRS = filteredDraws[start + i + 1]?.crs;
+    let trend = '<span style="color:var(--text-muted)">—</span>';
+    if (prevCRS !== undefined) {
+      const diff = d.crs - prevCRS;
+      if (diff > 0) trend = `<span class="trend-up">▲ ${diff}</span>`;
+      else if (diff < 0) trend = `<span class="trend-dn">▼ ${Math.abs(diff)}</span>`;
+    }
+    const crsClass = d.crs >= 700 ? 'crs-low' : d.crs >= 500 ? 'crs-high' : d.crs >= 450 ? 'crs-mid' : 'crs-low';
+    return `<tr>
+      <td style="color:var(--text-muted)">#${d.num}</td>
+      <td>${d.date}</td>
+      <td><span class="type-badge ${d.badge}">${d.type}</span></td>
+      <td>${d.inv.toLocaleString()}</td>
+      <td class="crs-cell ${crsClass}">${d.crs || '—'}</td>
+      <td>${trend}</td>
+    </tr>`;
+  }).join('');
+  const total = filteredDraws.length;
+  const end = Math.min(start + perPage, total);
+  document.getElementById('pageInfo').textContent = `Showing ${start+1}–${end} of ${total} draws`;
+  [1,2,3].forEach(p => {
+    const btn = document.getElementById('pg' + p);
+    if (btn) btn.classList.toggle('active-page', p === currentPage);
+  });
+}
+
+function filterTable(val) {
+  const q = val.toLowerCase().trim();
+  filteredDraws = q
+    ? allDraws.filter(d => d.type.toLowerCase().includes(q) || String(d.crs).includes(q) || String(d.num).includes(q))
+    : [...allDraws];
+  currentPage = 1;
+  renderTable();
+}
+
+function changePage(dir) {
+  const maxPage = Math.ceil(filteredDraws.length / perPage);
+  currentPage = Math.max(1, Math.min(maxPage, currentPage + dir));
+  renderTable();
+}
+function setPage(n) { currentPage = n; renderTable(); }
+
+renderTable();
+
+// ── CHART ────────────────────────────────────────────────────────────────
+const ctx = document.getElementById('drawChart').getContext('2d');
+
+function makeDataset(label, data, color) {
+  return {
+    label, data,
+    borderColor: color,
+    backgroundColor: color.replace(')', ', 0.08)').replace('rgb', 'rgba'),
+    tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2
+  };
+}
 
 let chart = new Chart(ctx, {
   type: 'line',
   data: {
-    labels: cecLabels,
+    labels: cecData.labels,
     datasets: [
-      {label:'General',data:cecCRS,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
-      {label:'STEM',data:[null,null,null,null,null,null,null,null,null,null,...stemDraws.slice(-2).map(d=>d.crs)],borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.08)',tension:0.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,spanGaps:true},
-      {label:'French',data:[null,null,...frenchDraws.slice(-4).map(d=>d.crs),null,null],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,0.08)',tension:0.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,spanGaps:true},
-      {label:'Healthcare',data:[null,null,null,...healthDraws.slice(-4).map(d=>d.crs),null],borderColor:'#fb923c',backgroundColor:'rgba(249,115,22,0.08)',tension:0.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,spanGaps:true},
+      makeDataset('CEC / General', cecData.crs, '#60a5fa'),
+      makeDataset('French language', frData.crs,  '#c084fc'),
+      makeDataset('Healthcare',      hlthData.crs, '#fb923c'),
+      makeDataset('Trades',          trdData.crs,  '#fb7185'),
     ]
   },
   options: {
-    responsive:true, maintainAspectRatio:false,
-    interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{backgroundColor:'#162235',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f5f0e8',bodyColor:'#8a9ab0',padding:12}},
-    scales:{
-      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a9ab0',font:{size:11,family:'DM Sans'}}},
-      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a9ab0',font:{size:11,family:'DM Sans'}},min:300,max:600}
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#162235', borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1, titleColor: '#f5f0e8', bodyColor: '#8a9ab0', padding: 12
+      }
+    },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a9ab0', font: { size: 10, family: 'DM Sans' }, maxRotation: 45, maxTicksLimit: 10 } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a9ab0', font: { size: 11, family: 'DM Sans' } }, min: 300, max: 600 }
     }
   }
 });
 
 function filterChart(type, btn) {
-  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  let datasets;
-  if (type==='general') {
-    datasets = [{label:'General',data:cecCRS,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,borderWidth:2}];
-    chart.options.scales.y.min = 480; chart.options.scales.y.max = 560;
-  } else if (type==='category') {
-    datasets = [
-      {label:'STEM',data:stemDraws.map(d=>d.crs),borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
-      {label:'French',data:frenchDraws.map(d=>d.crs),borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
-      {label:'Healthcare',data:healthDraws.map(d=>d.crs),borderColor:'#fb923c',backgroundColor:'rgba(249,115,22,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
-      {label:'Trades',data:tradesDraws.map(d=>d.crs),borderColor:'#fb7185',backgroundColor:'rgba(251,113,133,0.08)',tension:0.3,pointRadius:5,borderWidth:2},
+  if (type === 'general') {
+    chart.data.labels = cecData.labels;
+    chart.data.datasets = [makeDataset('CEC / General', cecData.crs, '#60a5fa')];
+    chart.options.scales.y.min = 450; chart.options.scales.y.max = 560;
+  } else if (type === 'category') {
+    const maxLen = Math.max(frData.labels.length, hlthData.labels.length, trdData.labels.length);
+    chart.data.labels = frData.labels;
+    chart.data.datasets = [
+      makeDataset('French language', frData.crs,  '#c084fc'),
+      makeDataset('Healthcare',      hlthData.crs, '#fb923c'),
+      makeDataset('Trades',          trdData.crs,  '#fb7185'),
     ];
-    chart.data.labels = stemDraws.map(d=>d.date.split(' ').slice(0,2).join(' '));
-    chart.options.scales.y.min = 300; chart.options.scales.y.max = 520;
-  } else if (type==='pnp') {
-    datasets = [{label:'PNP only',data:pnpDraws.map(d=>d.crs),borderColor:'#e8b052',backgroundColor:'rgba(200,146,42,0.08)',tension:0.3,pointRadius:5,borderWidth:2}];
-    chart.data.labels = pnpDraws.map(d=>d.date.split(' ').slice(0,2).join(' '));
-    chart.options.scales.y.min = 600; chart.options.scales.y.max = 720;
+    chart.options.scales.y.min = 150; chart.options.scales.y.max = 540;
+  } else if (type === 'pnp') {
+    chart.data.labels = pnpData.labels;
+    chart.data.datasets = [makeDataset('PNP only', pnpData.crs, '#e8b052')];
+    chart.options.scales.y.min = 650; chart.options.scales.y.max = 850;
   } else {
-    datasets = chart.config.data.datasets;
-    chart.data.labels = genDraws.map(d=>d.date.split(' ').slice(0,2).join(' '));
+    chart.data.labels = cecData.labels;
+    chart.data.datasets = [
+      makeDataset('CEC / General', cecData.crs, '#60a5fa'),
+      makeDataset('French language', frData.crs,  '#c084fc'),
+      makeDataset('Healthcare',      hlthData.crs, '#fb923c'),
+      makeDataset('Trades',          trdData.crs,  '#fb7185'),
+    ];
     chart.options.scales.y.min = 300; chart.options.scales.y.max = 600;
-    chart.data.datasets = [{label:'General',data:cecCRS,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',tension:0.3,pointRadius:4,borderWidth:2},{label:'STEM',data:[null,null,null,null,null,null,null,null,null,null,...stemDraws.slice(-2).map(d=>d.crs)],borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.08)',tension:0.3,pointRadius:5,borderWidth:2,spanGaps:true},{label:'French',data:[null,null,...frenchDraws.slice(-4).map(d=>d.crs),null,null],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,0.08)',tension:0.3,pointRadius:5,borderWidth:2,spanGaps:true},{label:'Healthcare',data:[null,null,null,...healthDraws.slice(-4).map(d=>d.crs),null],borderColor:'#fb923c',backgroundColor:'rgba(249,115,22,0.08)',tension:0.3,pointRadius:5,borderWidth:2,spanGaps:true}];
-    chart.update();
-    return;
   }
-  chart.data.datasets = datasets;
   chart.update();
 }
 </script>
