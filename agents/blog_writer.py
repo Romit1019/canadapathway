@@ -101,7 +101,7 @@ Requirements:
 Output ONLY the HTML article content. No preamble, no markdown."""
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=2500,
         system=system,
         messages=[{"role": "user", "content": prompt}]
@@ -144,7 +144,7 @@ End with a CTA to check their score at /crs-calculator.html.
 Output ONLY clean HTML body content."""
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=1500,
         system=system,
         messages=[{"role": "user", "content": prompt}]
@@ -273,7 +273,7 @@ def generate_excerpt(content):
     """Use Claude to write a 1-sentence excerpt from the article HTML."""
     plain = re.sub(r"<[^>]+>", " ", content)[:600]
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=80,
         messages=[{"role": "user", "content": f"Write one sentence (max 20 words) summarizing this immigration article for a blog card preview. Output only the sentence:\n\n{plain}"}]
     )

@@ -27,7 +27,7 @@ NEW_DRAW_FLAG = DATA_DIR / "new_draw_flag.json"
 def ai_write_email(draw, analysis):
     """Use Claude to write the draw alert email."""
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=800,
         messages=[{"role": "user", "content": f"""Write a concise draw alert email for Canadian immigration applicants.
 
@@ -49,7 +49,7 @@ Output subject line first, then blank line, then HTML body."""}]
     )
 
     text = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=800,
         messages=[{"role": "user", "content": f"""Write a concise draw alert email for Canadian immigration applicants.
 
@@ -184,7 +184,7 @@ def main():
     elif mode == "weekly_digest":
         # Weekly digest: summarize top articles from the week
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6",
             max_tokens=600,
             messages=[{"role": "user", "content": f"""Write a weekly digest email for Canadian immigration applicants.
 Today: {datetime.utcnow().strftime('%B %d, %Y')}
