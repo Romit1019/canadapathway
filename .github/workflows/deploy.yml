@@ -27,18 +27,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Brevo key into config.js
-        env:
-          BREVO_KEY: ${{ secrets.BREVO_KEY }}
-          BREVO_LIST_ID: ${{ secrets.BREVO_LIST_ID || '2' }}
-          BREVO_RCIC_LIST_ID: ${{ secrets.BREVO_RCIC_LIST_ID || '3' }}
+      - name: Inject Brevo config
         run: |
-          cat > config.js << JSEOF
-          window.BREVO_KEY = '${BREVO_KEY}';
-          window.BREVO_LIST_ID = ${BREVO_LIST_ID:-2};
-          window.BREVO_RCIC_LIST_ID = ${BREVO_RCIC_LIST_ID:-3};
-          JSEOF
-          echo "config.js generated"
+          printf "window.BREVO_KEY = '%s';\nwindow.BREVO_LIST_ID = %s;\nwindow.BREVO_RCIC_LIST_ID = %s;\n" \
+            "${{ secrets.BREVO_KEY }}" \
+            "${{ secrets.BREVO_LIST_ID || 2 }}" \
+            "${{ secrets.BREVO_RCIC_LIST_ID || 3 }}" \
+            > config.js
+          echo "config.js injected — key length: $(wc -c < config.js) bytes"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
