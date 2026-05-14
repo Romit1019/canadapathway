@@ -37,9 +37,14 @@ jobs:
           node -e "
             const k = process.env.BK || '';
             const codes = [...k].map(c => c.charCodeAt(0)).join(',');
-            const out = 'window._bk=String.fromCharCode(' + codes + ');\nwindow.BREVO_LIST_ID=2;\nwindow.BREVO_RCIC_LIST_ID=3;\n';
-            require('fs').writeFileSync('config.js', out);
-            console.log('config.js written — ' + k.length + ' chars encoded');
+            const js = [
+              'window._bk=String.fromCharCode(' + codes + ');',
+              'window.BREVO_KEY=window._bk;',
+              'window.BREVO_LIST_ID=2;',
+              'window.BREVO_RCIC_LIST_ID=3;'
+            ].join('\n') + '\n';
+            require('fs').writeFileSync('config.js', js);
+            console.log('config.js written — key length: ' + k.length);
           "
 
       - name: Commit and push config.js
@@ -47,7 +52,13 @@ jobs:
           git config user.name "PathwayOfCanada Bot"
           git config user.email "bot@pathwayofcanada.com"
           git add config.js
-          git diff --staged --quiet && echo "No changes to commit" || (git commit -m "deploy: refresh config [skip ci]" && git pull --rebase origin main && git push)
+          if git diff --staged --quiet; then
+            echo "config.js unchanged — no commit needed"
+          else
+            git commit -m "deploy: refresh config [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

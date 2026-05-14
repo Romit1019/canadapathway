@@ -1462,7 +1462,7 @@ async function subscribeEmail(email, btnEl, msgEl) {
     return;
   }
   if (btnEl) { btnEl.textContent = 'Subscribing...'; btnEl.disabled = true; }
-  const _k = window._bk || '';
+  const _k = window._bk || window.BREVO_KEY || '';
   try {
     const res = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
@@ -1503,7 +1503,7 @@ async function handleSubmit(btn) {
     return;
   }
   btn.textContent = 'Sending...'; btn.disabled = true;
-  const _k = window._bk || '';
+  const _k = window._bk || window.BREVO_KEY || '';
   try {
     await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
