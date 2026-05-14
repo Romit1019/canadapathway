@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Generate config.js
@@ -42,7 +42,6 @@ jobs:
             require('fs').writeFileSync('config.js', js);
             console.log('Done — key length: ' + k.length);
           "
-          cat config.js | head -1
 
       - name: Commit config.js
         run: |
