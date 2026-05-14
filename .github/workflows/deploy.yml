@@ -30,30 +30,24 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           fetch-depth: 0
 
-      - name: Generate config.js from secret
+      - name: Generate config.js
         env:
           BK: ${{ secrets.BREVO_NEWS_LETTER }}
         run: |
-          python3 - << 'PYEOF'
-import os
-key = os.environ.get('BK', '')
-codes = ','.join(str(ord(c)) for c in key)
-with open('config.js', 'w') as f:
-    f.write(f'window._bk=String.fromCharCode({codes});\n')
-    f.write('window.BREVO_LIST_ID=2;\n')
-    f.write('window.BREVO_RCIC_LIST_ID=3;\n')
-print(f"config.js written ({len(key)} chars → {len(key)} char codes)")
-PYEOF
+          node -e "
+            const k = process.env.BK || '';
+            const codes = [...k].map(c => c.charCodeAt(0)).join(',');
+            const out = 'window._bk=String.fromCharCode(' + codes + ');\nwindow.BREVO_LIST_ID=2;\nwindow.BREVO_RCIC_LIST_ID=3;\n';
+            require('fs').writeFileSync('config.js', out);
+            console.log('config.js written — ' + k.length + ' chars encoded');
+          "
 
-      - name: Commit config.js to branch
+      - name: Commit and push config.js
         run: |
           git config user.name "PathwayOfCanada Bot"
           git config user.email "bot@pathwayofcanada.com"
           git add config.js
-          git diff --staged --quiet && echo "No changes" && exit 0
-          git commit -m "deploy: refresh config [skip ci]"
-          git pull --rebase origin main
-          git push
+          git diff --staged --quiet && echo "No changes to commit" || (git commit -m "deploy: refresh config [skip ci]" && git pull --rebase origin main && git push)
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
