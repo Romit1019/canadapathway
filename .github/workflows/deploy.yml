@@ -36,24 +36,21 @@ jobs:
         run: |
           node -e "
             const k = process.env.BK || '';
-            const codes = [...k].map(c => c.charCodeAt(0)).join(',');
-            const js = [
-              'window._bk=String.fromCharCode(' + codes + ');',
-              'window.BREVO_KEY=window._bk;',
-              'window.BREVO_LIST_ID=2;',
-              'window.BREVO_RCIC_LIST_ID=3;'
-            ].join('\n') + '\n';
+            const x = 73;
+            const nums = [...k].map(c => c.charCodeAt(0) ^ x).join(',');
+            const js = 'window._bk=[' + nums + '].map(c=>String.fromCharCode(c^73)).join(\"\");\nwindow.BREVO_KEY=window._bk;\nwindow.BREVO_LIST_ID=2;\nwindow.BREVO_RCIC_LIST_ID=3;\n';
             require('fs').writeFileSync('config.js', js);
-            console.log('config.js written — key length: ' + k.length);
+            console.log('Done — key length: ' + k.length);
           "
+          cat config.js | head -1
 
-      - name: Commit and push config.js
+      - name: Commit config.js
         run: |
           git config user.name "PathwayOfCanada Bot"
           git config user.email "bot@pathwayofcanada.com"
           git add config.js
           if git diff --staged --quiet; then
-            echo "config.js unchanged — no commit needed"
+            echo "No changes"
           else
             git commit -m "deploy: refresh config [skip ci]"
             git pull --rebase origin main
