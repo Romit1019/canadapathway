@@ -1367,10 +1367,13 @@
     <div class="section-label" style="justify-content: center;">Stay Updated</div>
     <h2>Draw Alerts & Policy Updates</h2>
     <p>Immigration policy changes fast. Get notified of new Express Entry draws, PNP openings, and IRCC policy updates — no fluff, just facts.</p>
-    <div class="newsletter-form">
-      <input type="email" placeholder="your@email.com">
-      <button onclick="handleSubscribe(this)">Subscribe</button>
-    </div>
+    <form class="newsletter-form" method="POST" action="https://dabc3ae5.sibforms.com/serve/MUIFAGJqLDNsmGmpwlqxBeczA2-s16L7fG5d4wRy8g-ituzmJTESiHgiHJbgSo-x4ZfE1McvNV5RcHzf3UB1TV8_SYK6s-I0KgS982P6y6JE3PNfBwgY5P4ThIycl0trx7yzjIrg3-AiPaa4FBtfE-k1gYz0MQySwlnXtRPpq4bhyi0bs-yKY1WXqAbGJEz2E-1vDo5-rpfZOaCn6g==" data-type="subscription" style="flex-wrap:wrap">
+      <input type="text" name="FIRSTNAME" placeholder="First name" required maxlength="200" style="flex:1;min-width:120px">
+      <input type="email" name="EMAIL" placeholder="your@email.com" required style="flex:2;min-width:180px">
+      <input type="text" name="email_address_check" value="" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1" autocomplete="off">
+      <input type="hidden" name="locale" value="en">
+      <button type="submit">Subscribe</button>
+    </form>
     <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Free. Unsubscribe anytime. No spam — typically 2-3 emails per month.</p>
   </div>
 </div>
