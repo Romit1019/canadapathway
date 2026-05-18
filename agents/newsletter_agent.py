@@ -116,7 +116,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgro
 </div>
 </body>
 </html>""",
-        "recipients": {"listIds": [list_id or 1]}
+        "recipients": {"listIds": [list_id or 5]}
     }
 
     resp = requests.post(
