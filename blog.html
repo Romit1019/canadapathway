@@ -296,8 +296,13 @@ h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-we
       <div class="sidebar-card newsletter-sidebar">
         <div class="sidebar-title">Draw Alerts</div>
         <p>Get notified within 30 minutes of every new Express Entry draw with full breakdown.</p>
-        <input class="ns-input" placeholder="your@email.com" type="email">
-        <button class="ns-btn" onclick="handleSubscribe(this)">Subscribe — Free</button>
+        <form method="POST" action="https://dabc3ae5.sibforms.com/serve/MUIFAGJqLDNsmGmpwlqxBeczA2-s16L7fG5d4wRy8g-ituzmJTESiHgiHJbgSo-x4ZfE1McvNV5RcHzf3UB1TV8_SYK6s-I0KgS982P6y6JE3PNfBwgY5P4ThIycl0trx7yzjIrg3-AiPaa4FBtfE-k1gYz0MQySwlnXtRPpq4bhyi0bs-yKY1WXqAbGJEz2E-1vDo5-rpfZOaCn6g==" data-type="subscription">
+          <input class="ns-input" name="FIRSTNAME" placeholder="First name" type="text" required maxlength="200">
+          <input class="ns-input" name="EMAIL" placeholder="your@email.com" type="email" required>
+          <input type="text" name="email_address_check" value="" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1" autocomplete="off">
+          <input type="hidden" name="locale" value="en">
+          <button class="ns-btn" type="submit">Subscribe — Free</button>
+        </form>
       </div>
 
       <div class="sidebar-card">
