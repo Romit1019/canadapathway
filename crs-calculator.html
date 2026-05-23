@@ -20,7 +20,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--cream);
 
 nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:64px}
 .logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);text-decoration:none}.logo span{color:var(--red)}
-nav-links{display:flex;gap:2rem}
+.nav-links{display:flex;gap:2rem}
 .nav-back{color:var(--text-muted);text-decoration:none;font-size:0.875rem;display:flex;align-items:center;gap:0.5rem;transition:color 0.2s}.nav-back:hover{color:var(--cream)}
 
 .page-header{padding:100px 5% 3rem;text-align:center;max-width:720px;margin:0 auto}
@@ -247,7 +247,7 @@ nav-links{display:flex;gap:2rem}
       <button class="option-btn" onclick="selectOption(this, 'edu', 'masters', 135)">
         <div class="opt-check"></div><div class="opt-content"><h4>Master's degree or professional degree</h4><p>Entry to practise in a profession requires a licence (e.g. medicine, law)</p></div><div class="opt-points">135 pts</div>
       </button>
-      <button class="option-btn" onclick="selectOption(this, 'edu', 'bach3+', 120)">
+      <button class="option-btn" onclick="selectOption(this, 'edu', 'bach3+', 128)">
         <div class="opt-check"></div><div class="opt-content"><h4>Two or more post-secondary credentials</h4><p>One must be 3+ years (bachelor's or higher)</p></div><div class="opt-points">128 pts</div>
       </button>
       <button class="option-btn" onclick="selectOption(this, 'edu', 'bach', 120)">
@@ -543,11 +543,11 @@ function showResults() {
     </div>`).join('');
 
   const draws = [
-    {label: 'General draw', cutoff: 524, color: '#60a5fa'},
+    {label: 'General draw', cutoff: 514, color: '#60a5fa'},
     {label: 'STEM category', cutoff: 491, color: '#4dca60'},
-    {label: 'French language', cutoff: 379, color: '#c084fc'},
-    {label: 'Healthcare', cutoff: 422, color: '#e8b052'},
-    {label: 'Trade workers', cutoff: 436, color: '#f97316'},
+    {label: 'French language', cutoff: 400, color: '#c084fc'},
+    {label: 'Healthcare', cutoff: 467, color: '#e8b052'},
+    {label: 'Trade workers', cutoff: 477, color: '#f97316'},
   ];
 
   document.getElementById('compareList').innerHTML = draws.map(d => {
