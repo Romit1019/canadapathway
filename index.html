@@ -1508,22 +1508,48 @@ async function handleSubscribe(btn) {
 
 async function handleSubmit(btn) {
   const form = btn.closest('.consult-form, .form-single');
-  const name = form ? (form.querySelector('input[type="text"]')?.value || '') : '';
-  const email = form ? (form.querySelector('input[type="email"]')?.value || '') : '';
+  const textInputs = form ? form.querySelectorAll('input[type="text"]') : [];
+  const selects    = form ? form.querySelectorAll('select') : [];
+  const name       = textInputs[0]?.value.trim() || '';
+  const email      = form ? (form.querySelector('input[type="email"]')?.value.trim() || '') : '';
+  const country    = textInputs[1]?.value.trim() || '';
+  const stream     = selects[0]?.value || '';
+  const crsScore   = selects[1]?.value || '';
+
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
     btn.textContent = 'Please enter your email address';
     setTimeout(() => { btn.textContent = 'Request My Free Assessment'; btn.disabled = false; }, 2500);
     return;
   }
   btn.textContent = 'Sending...'; btn.disabled = true;
+
   const _k = window._bk || window.BREVO_KEY || '';
-  try {
-    await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: { 'accept': 'application/json', 'content-type': 'application/json', 'api-key': _k },
-      body: JSON.stringify({ email, attributes: { FIRSTNAME: name }, listIds: [3], updateEnabled: true })
-    });
-  } catch(e) {}
+  const payload = {
+    email,
+    attributes: { FIRSTNAME: name, COUNTRY: country, IMMIGRATION_STREAM: stream, CRS_SCORE: crsScore },
+    listIds: [6],
+    updateEnabled: true
+  };
+
+  let apiSuccess = false;
+  if (_k) {
+    try {
+      const res = await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: { 'accept': 'application/json', 'content-type': 'application/json', 'api-key': _k },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok || res.status === 204 || res.status === 400) apiSuccess = true;
+    } catch(e) {}
+  }
+
+  // Fallback: persist locally if API key absent or call failed
+  if (!apiSuccess) {
+    const leads = JSON.parse(localStorage.getItem('rcicLeads') || '[]');
+    leads.push({ name, email, country, stream, crsScore, ts: new Date().toISOString() });
+    localStorage.setItem('rcicLeads', JSON.stringify(leads));
+  }
+
   btn.textContent = '&#10003; Request received — we will contact you within 24 hours';
   btn.style.background = '#1a7a3a';
 }
