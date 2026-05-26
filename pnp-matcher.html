@@ -39,9 +39,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.9
 .opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;cursor:pointer;text-align:left;transition:all 0.2s;color:var(--cream);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:0.875rem}
 .opt:hover{border-color:rgba(200,146,42,0.35);background:rgba(200,146,42,0.04)}
 .opt.sel{border-color:var(--gold);background:rgba(200,146,42,0.08)}
+
+/* Single-select radio indicator */
 .opt-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;transition:all 0.2s;position:relative}
 .opt.sel .opt-radio{border-color:var(--gold);background:var(--gold)}
 .opt.sel .opt-radio::after{content:'';position:absolute;width:6px;height:6px;background:white;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+
+/* Multi-select checkbox indicator (Q8) */
+.opt-checkbox{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;transition:all 0.2s;position:relative}
+.opt.sel .opt-checkbox{border-color:var(--gold);background:var(--gold)}
+.opt.sel .opt-checkbox::after{content:'✓';position:absolute;font-size:10px;font-weight:700;color:white;top:50%;left:50%;transform:translate(-50%,-50%)}
+
 .opt-text h4{font-size:0.9rem;font-weight:500;color:var(--white);margin-bottom:0.1rem}
 .opt-text p{font-size:0.75rem;color:var(--text-muted)}
 
@@ -226,17 +234,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.9
     <div class="q-nav"><button class="btn-back" onclick="prevQ(6)">← Back</button><button class="btn-next" id="nq7" disabled onclick="nextQ(8)">Next →</button></div>
   </div>
 
-  <!-- Q8: Ties -->
+  <!-- Q8: Ties — MULTI-SELECT -->
   <div class="question-card" id="q8">
     <div class="q-number">Question 8 of 8</div>
     <div class="q-title">Do you have any connections to Canada?</div>
     <div class="q-desc">Connections significantly boost eligibility for certain provincial streams. Select all that apply.</div>
-    <div class="opts">
-      <div class="opt" onclick="selectQ(this,'ties','joboffer')"><div class="opt-radio"></div><div class="opt-text"><h4>Valid Canadian job offer</h4><p>From an employer in a specific province</p></div></div>
-      <div class="opt" onclick="selectQ(this,'ties','studied')"><div class="opt-radio"></div><div class="opt-text"><h4>Studied at a Canadian institution</h4><p>Completed a post-secondary program in Canada</p></div></div>
-      <div class="opt" onclick="selectQ(this,'ties','family')"><div class="opt-radio"></div><div class="opt-text"><h4>Close family member in Canada</h4><p>Canadian citizen or PR who is a sibling, parent, child, or spouse</p></div></div>
-      <div class="opt" onclick="selectQ(this,'ties','worked')"><div class="opt-radio"></div><div class="opt-text"><h4>Currently working in Canada</h4><p>On a valid work permit in Canada right now</p></div></div>
-      <div class="opt" onclick="selectQ(this,'ties','none')"><div class="opt-radio"></div><div class="opt-text"><h4>No established connections</h4><p>Applying from outside Canada with no prior ties</p></div></div>
+    <div class="opts" id="tiesOpts">
+      <div class="opt" onclick="selectTie(this,'joboffer')"><div class="opt-checkbox"></div><div class="opt-text"><h4>Valid Canadian job offer</h4><p>From an employer in a specific province</p></div></div>
+      <div class="opt" onclick="selectTie(this,'studied')"><div class="opt-checkbox"></div><div class="opt-text"><h4>Studied at a Canadian institution</h4><p>Completed a post-secondary program in Canada</p></div></div>
+      <div class="opt" onclick="selectTie(this,'family')"><div class="opt-checkbox"></div><div class="opt-text"><h4>Close family member in Canada</h4><p>Canadian citizen or PR who is a sibling, parent, child, or spouse</p></div></div>
+      <div class="opt" onclick="selectTie(this,'worked')"><div class="opt-checkbox"></div><div class="opt-text"><h4>Currently working in Canada</h4><p>On a valid work permit in Canada right now</p></div></div>
+      <div class="opt" id="tieNone" onclick="selectTie(this,'none')"><div class="opt-checkbox"></div><div class="opt-text"><h4>No established connections</h4><p>Applying from outside Canada with no prior ties</p></div></div>
     </div>
     <div class="q-nav"><button class="btn-back" onclick="prevQ(7)">← Back</button><button class="btn-next" id="nq8" disabled onclick="showMatches()">Find My Matches →</button></div>
   </div>
@@ -262,22 +270,51 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,27,42,0.9
 <script>
 const answers = {};
 
+// Q1–Q7: single-select
 function selectQ(opt, field, value) {
   opt.closest('.opts').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
   opt.classList.add('sel');
   answers[field] = value;
   const qn = opt.closest('.question-card').id.replace('q','');
-  const nb = document.getElementById('nq'+qn);
+  const nb = document.getElementById('nq' + qn);
   if (nb) nb.disabled = false;
+}
+
+// Q8: multi-select with toggle — stored as an array in answers.ties
+function selectTie(opt, value) {
+  if (!Array.isArray(answers.ties)) answers.ties = [];
+
+  if (value === 'none') {
+    // 'None' clears all other selections
+    document.getElementById('tiesOpts').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+    opt.classList.add('sel');
+    answers.ties = ['none'];
+  } else {
+    // Selecting any real tie deselects 'none'
+    document.getElementById('tieNone').classList.remove('sel');
+    answers.ties = answers.ties.filter(t => t !== 'none');
+
+    if (opt.classList.contains('sel')) {
+      // Toggle off
+      opt.classList.remove('sel');
+      answers.ties = answers.ties.filter(t => t !== value);
+    } else {
+      // Toggle on
+      opt.classList.add('sel');
+      if (!answers.ties.includes(value)) answers.ties.push(value);
+    }
+  }
+
+  document.getElementById('nq8').disabled = answers.ties.length === 0;
 }
 
 function nextQ(n) {
   document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
-  document.getElementById('q'+n).classList.add('active');
-  const pct = Math.round((n/8)*100);
-  document.getElementById('progressFill').style.width = pct+'%';
-  document.getElementById('progressLabel').textContent = 'Question '+n+' of 8';
-  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('q' + n).classList.add('active');
+  const pct = Math.round((n / 8) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = 'Question ' + n + ' of 8';
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function prevQ(n) {
@@ -291,10 +328,10 @@ function showMatches() {
 
   const a = answers;
   const streams = buildStreams(a);
-  const sorted = streams.sort((a,b) => b.score - a.score);
+  const sorted = streams.sort((x, y) => y.score - x.score);
   const top = sorted.slice(0, 7);
 
-  document.getElementById('matchCount').textContent = `${top.filter(s=>s.matchType!=='possible').length} strong matches found`;
+  document.getElementById('matchCount').textContent = `${top.filter(s => s.matchType !== 'possible').length} strong matches found`;
 
   document.getElementById('streamsGrid').innerHTML = top.map(s => `
     <div class="stream-card ${s.matchType}">
@@ -303,7 +340,7 @@ function showMatches() {
           <div class="stream-name">${s.name}</div>
           <div class="stream-province">${s.province}</div>
         </div>
-        <span class="match-badge ${s.matchType==='top-match'?'badge-top':s.matchType==='good-match'?'badge-good':'badge-possible'}">${s.matchType==='top-match'?'Top Match':s.matchType==='good-match'?'Good Match':'Possible Match'}</span>
+        <span class="match-badge ${s.matchType === 'top-match' ? 'badge-top' : s.matchType === 'good-match' ? 'badge-good' : 'badge-possible'}">${s.matchType === 'top-match' ? 'Top Match' : s.matchType === 'good-match' ? 'Good Match' : 'Possible Match'}</span>
       </div>
       <div class="stream-meta">
         <div class="stream-meta-item"><span class="meta-label">Processing</span><span class="meta-value">${s.processing}</span></div>
@@ -311,30 +348,34 @@ function showMatches() {
         <div class="stream-meta-item"><span class="meta-label">Min. Language</span><span class="meta-value">${s.minLang}</span></div>
       </div>
       <div class="stream-requirements">
-        ${s.requirements.map(r=>`<div class="req-item ${r.status}"><div class="req-dot"></div>${r.text}</div>`).join('')}
+        ${s.requirements.map(r => `<div class="req-item ${r.status}"><div class="req-dot"></div>${r.text}</div>`).join('')}
       </div>
     </div>`).join('');
 
   document.getElementById('resultsWrap').classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function buildStreams(a) {
-  const isHighLang = ['clb9plus','clb8','clb7'].includes(a.lang);
-  const isMidLang = a.lang === 'clb5-6';
-  const hasExp = ['1yr','2-3yr','4-5yr','5plus'].includes(a.workexp);
-  const hasGoodExp = ['2-3yr','4-5yr','5plus'].includes(a.workexp);
-  const highEdu = ['phd','masters','bachelor'].includes(a.edu);
-  const isTech = a.noc === 'tech';
-  const isHealth = a.noc === 'health';
-  const isTrades = a.noc === 'trades';
-  const hasFrench = ['nclc7plus','nclc5-6'].includes(a.french);
-  const highFrench = a.french === 'nclc7plus';
-  const hasJobOffer = a.ties === 'joboffer';
-  const studiedCan = a.ties === 'studied';
-  const worksInCan = a.ties === 'worked';
-  const provAny = a.province === 'any';
-  const highCRS = ['500plus','470-499'].includes(a.crs);
+  const isHighLang  = ['clb9plus','clb8','clb7'].includes(a.lang);
+  const isMidLang   = a.lang === 'clb5-6';
+  const hasExp      = ['1yr','2-3yr','4-5yr','5plus'].includes(a.workexp);
+  const hasGoodExp  = ['2-3yr','4-5yr','5plus'].includes(a.workexp);
+  const highEdu     = ['phd','masters','bachelor'].includes(a.edu);
+  const isTech      = a.noc === 'tech';
+  const isHealth    = a.noc === 'health';
+  const isTrades    = a.noc === 'trades';
+  const hasFrench   = ['nclc7plus','nclc5-6'].includes(a.french);
+  const highFrench  = a.french === 'nclc7plus';
+  const highCRS     = ['500plus','470-499'].includes(a.crs);
+  const provAny     = a.province === 'any';
+
+  // answers.ties is now always an array — use .includes() for all checks
+  const ties = Array.isArray(a.ties) ? a.ties : (a.ties ? [a.ties] : []);
+  const hasJobOffer = ties.includes('joboffer');
+  const studiedCan  = ties.includes('studied');
+  const worksInCan  = ties.includes('worked');
+  const hasFamily   = ties.includes('family');
 
   const streams = [];
 
@@ -378,7 +419,7 @@ function buildStreams(a) {
     streams.push({name:'OINP Employer Job Offer Stream',province:'Ontario',processing:'3–5 months',minCRS:'N/A',minLang:'CLB 4–7',matchType:'good-match',score:78,requirements:[{status:'met',text:'Ontario employer job offer ✓'},{status:hasExp?'met':'unmet',text:'Work experience in offered NOC'},{status:isHighLang?'met':isMidLang?'partial':'unmet',text:'Language requirement by NOC level'},{status:'partial',text:'Employer must be registered with OINP'}]});
   }
 
-  // Healthcare stream
+  // Healthcare streams
   if (isHealth && isHighLang && (provAny || ['ON','BC','AB','MB'].includes(a.province))) {
     streams.push({name:'Healthcare Worker Priority Streams',province:'Multiple provinces',processing:'2–4 months',minCRS:'N/A',minLang:'CLB 7',matchType:'top-match',score:91,requirements:[{status:'met',text:'Healthcare NOC occupation ✓'},{status:isHighLang?'met':'unmet',text:'CLB 7 minimum language requirement'},{status:hasExp?'met':'partial',text:'Minimum 1 year healthcare experience'},{status:'partial',text:'Provincial licence or eligibility required in most streams'}]});
   }
@@ -388,7 +429,7 @@ function buildStreams(a) {
     streams.push({name:'Skilled Trades Category (Federal)',province:'Federal (Express Entry)',processing:'6 months',minCRS:'430–460 (trades draws)',minLang:'CLB 5',matchType:highCRS?'top-match':'good-match',score:highCRS?86:68,requirements:[{status:'met',text:'Skilled trades NOC ✓'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 5 language minimum'},{status:hasExp?'met':'unmet',text:'1 year trades experience required'},{status:'partial',text:'Certificate of qualification adds 50 CRS pts'}]});
   }
 
-  // Fallback if nothing matched well
+  // Fallback if nothing matched
   if (streams.length === 0) {
     streams.push({name:'MPNP International Education Stream',province:'Manitoba',processing:'60–90 days',minCRS:'N/A',minLang:'CLB 5',matchType:'possible',score:40,requirements:[{status:studiedCan?'met':'unmet',text:'Graduated from a Manitoba institution (required)'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 5 language minimum'},{status:'partial',text:'Full-time Manitoba job offer required'},{status:'partial',text:'Must apply within 18 months of graduation'}]});
     streams.push({name:'SINP International Skilled Worker',province:'Saskatchewan',processing:'4–6 months',minCRS:'N/A',minLang:'CLB 4',matchType:'possible',score:35,requirements:[{status:hasExp?'partial':'unmet',text:'Work experience in demand occupation'},{status:isHighLang||isMidLang?'met':'unmet',text:'CLB 4 language minimum'},{status:'partial',text:'Must have job offer or connection to SK'},{status:'partial',text:'In-demand occupation in SK required'}]});
