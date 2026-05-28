@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
   pages: write
   id-token: write
 
@@ -27,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate config.js
+      - name: Inject Brevo key into config.js
         env:
           BK: ${{ secrets.BREVO_NEWS_LETTER }}
         run: |
@@ -37,22 +36,8 @@ jobs:
             const nums = [...k].map(c => c.charCodeAt(0) ^ x).join(',');
             const js = 'window._bk=[' + nums + '].map(c=>String.fromCharCode(c^73)).join(\"\");\nwindow.BREVO_KEY=window._bk;\nwindow.BREVO_LIST_ID=2;\nwindow.BREVO_RCIC_LIST_ID=3;\n';
             require('fs').writeFileSync('config.js', js);
-            console.log('Done — key length: ' + k.length);
+            console.log('config.js injected — key length: ' + k.length);
           "
-
-      - name: Commit config.js
-        run: |
-          git config user.name "PathwayOfCanada Bot"
-          git config user.email "bot@pathwayofcanada.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git add config.js
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "deploy: refresh config [skip ci]"
-            git pull --rebase origin main
-            git push
-          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
