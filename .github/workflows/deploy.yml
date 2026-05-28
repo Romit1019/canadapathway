@@ -26,9 +26,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
       - name: Generate config.js
         env:
@@ -47,9 +44,10 @@ jobs:
         run: |
           git config user.name "PathwayOfCanada Bot"
           git config user.email "bot@pathwayofcanada.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add config.js
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No changes to commit"
           else
             git commit -m "deploy: refresh config [skip ci]"
             git pull --rebase origin main
