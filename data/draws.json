@@ -1,5 +1,13 @@
 [
   {
+    "number": "419",
+    "date": "June 22, 2026",
+    "type": "Provincial Nominee Program",
+    "invitations": "955",
+    "crs": "730",
+    "tie_breaking": "March 09, 2026 at 01:02:28 UTC"
+  },
+  {
     "number": "418",
     "date": "May 28, 2026",
     "type": "French-Language proficiency 2026-Version 2",
@@ -310,13 +318,5 @@
     "invitations": "777",
     "crs": "699",
     "tie_breaking": "September 06, 2025 at 01:16:22 UTC"
-  },
-  {
-    "number": "379",
-    "date": "November 14, 2025",
-    "type": "Healthcare and social services occupations (Version 2)",
-    "invitations": "3500",
-    "crs": "462",
-    "tie_breaking": "December 02, 2024 at 22:19:41 UTC"
   }
 ]
