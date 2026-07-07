@@ -1,5 +1,13 @@
 [
   {
+    "number": "424",
+    "date": "July 7, 2026",
+    "type": "Canadian Experience Class",
+    "invitations": "2000",
+    "crs": "517",
+    "tie_breaking": "December 29, 2025 at 17:49:27 UTC"
+  },
+  {
     "number": "423",
     "date": "July 6, 2026",
     "type": "Provincial Nominee Program",
@@ -310,13 +318,5 @@
     "invitations": "1000",
     "crs": "476",
     "tie_breaking": "November 26, 2025 at 07:44:30 UTC"
-  },
-  {
-    "number": "384",
-    "date": "December 10, 2025",
-    "type": "Canadian Experience Class",
-    "invitations": "6000",
-    "crs": "520",
-    "tie_breaking": "July 15, 2025 at 17:30:33 UTC"
   }
 ]
