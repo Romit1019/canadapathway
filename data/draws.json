@@ -1,5 +1,13 @@
 [
   {
+    "number": "429",
+    "date": "July 22, 2026",
+    "type": "French-Language proficiency 2026-Version 2",
+    "invitations": "5000",
+    "crs": "399",
+    "tie_breaking": "November 19, 2025 at 21:21:56 UTC"
+  },
+  {
     "number": "428",
     "date": "July 21, 2026",
     "type": "Canadian Experience Class",
@@ -310,13 +318,5 @@
     "invitations": "8000",
     "crs": "511",
     "tie_breaking": "June 10, 2025 at 15:59:25 UTC"
-  },
-  {
-    "number": "389",
-    "date": "January 5, 2026",
-    "type": "Provincial Nominee Program",
-    "invitations": "574",
-    "crs": "711",
-    "tie_breaking": "October 06, 2025 at 01:54:31 UTC"
   }
 ]
