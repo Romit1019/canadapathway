@@ -1,5 +1,13 @@
 [
   {
+    "number": "430",
+    "date": "July 23, 2026",
+    "type": "Skilled Military Recruits, 2026-Version 1",
+    "invitations": "4",
+    "crs": "368",
+    "tie_breaking": "June 02, 2026 at 20:11:26 UTC"
+  },
+  {
     "number": "429",
     "date": "July 22, 2026",
     "type": "French-Language proficiency 2026-Version 2",
@@ -310,13 +318,5 @@
     "invitations": "681",
     "crs": "746",
     "tie_breaking": "November 19, 2025 at 04:09:11 UTC"
-  },
-  {
-    "number": "390",
-    "date": "January 7, 2026",
-    "type": "Canadian Experience Class",
-    "invitations": "8000",
-    "crs": "511",
-    "tie_breaking": "June 10, 2025 at 15:59:25 UTC"
   }
 ]
