@@ -1,5 +1,13 @@
 [
   {
+    "number": "440",
+    "date": "September 3, 2026",
+    "type": "Physicians with Canadian Work Experience, 2026-Version 1",
+    "invitations": "229",
+    "crs": "198",
+    "tie_breaking": "August 06, 2026 at 19:40:38 UTC"
+  },
+  {
     "number": "439",
     "date": "September 1, 2026",
     "type": "Canadian Experience Class",
@@ -310,13 +318,5 @@
     "invitations": "5500",
     "crs": "397",
     "tie_breaking": "October 10, 2025 at 18:18:20 UTC"
-  },
-  {
-    "number": "400",
-    "date": "March 3, 2026",
-    "type": "Canadian Experience Class",
-    "invitations": "4000",
-    "crs": "508",
-    "tie_breaking": "June 24, 2025 at 22:35:48 UTC"
   }
 ]
