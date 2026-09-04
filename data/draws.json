@@ -1,5 +1,13 @@
 [
   {
+    "number": "441",
+    "date": "September 4, 2026",
+    "type": "Healthcare and Social Services Occupations, 2026-Version 3",
+    "invitations": "3500",
+    "crs": "475",
+    "tie_breaking": "May 26, 2026 at 00:26:14 UTC"
+  },
+  {
     "number": "440",
     "date": "September 3, 2026",
     "type": "Physicians with Canadian Work Experience, 2026-Version 1",
@@ -310,13 +318,5 @@
     "invitations": "250",
     "crs": "429",
     "tie_breaking": "August 19, 2025 at 15:10:18 UTC"
-  },
-  {
-    "number": "401",
-    "date": "March 4, 2026",
-    "type": "French-Language proficiency 2026-Version 2",
-    "invitations": "5500",
-    "crs": "397",
-    "tie_breaking": "October 10, 2025 at 18:18:20 UTC"
   }
 ]
