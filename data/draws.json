@@ -1,5 +1,13 @@
 [
   {
+    "number": "442",
+    "date": "September 14, 2026",
+    "type": "Provincial Nominee Program",
+    "invitations": "576",
+    "crs": "734",
+    "tie_breaking": "August 29, 2026 at 21:39:50 UTC"
+  },
+  {
     "number": "441",
     "date": "September 4, 2026",
     "type": "Healthcare and Social Services Occupations, 2026-Version 3",
@@ -310,13 +318,5 @@
     "invitations": "362",
     "crs": "742",
     "tie_breaking": "October 05, 2025 at 20:35:25 UTC"
-  },
-  {
-    "number": "402",
-    "date": "March 5, 2026",
-    "type": "Senior managers with Canadian Work Experience, 2026-Version 1",
-    "invitations": "250",
-    "crs": "429",
-    "tie_breaking": "August 19, 2025 at 15:10:18 UTC"
   }
 ]
