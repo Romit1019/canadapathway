@@ -1,5 +1,13 @@
 [
   {
+    "number": "444",
+    "date": "September 16, 2026",
+    "type": "Senior managers with Canadian Work Experience, 2026-Version 1",
+    "invitations": "250",
+    "crs": "389",
+    "tie_breaking": "September 01, 2026 at 23:05:13 UTC"
+  },
+  {
     "number": "443",
     "date": "September 15, 2026",
     "type": "Canadian Experience Class",
@@ -310,13 +318,5 @@
     "invitations": "4000",
     "crs": "393",
     "tie_breaking": "December 29, 2025 at 12:47:31 UTC"
-  },
-  {
-    "number": "404",
-    "date": "March 17, 2026",
-    "type": "Canadian Experience Class",
-    "invitations": "4000",
-    "crs": "507",
-    "tie_breaking": "May 11, 2025 at 18:57:31 UTC"
   }
 ]
