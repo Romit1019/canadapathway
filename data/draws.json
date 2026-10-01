@@ -1,5 +1,13 @@
 [
   {
+    "number": "447",
+    "date": "October 1, 2026",
+    "type": "Trades Occupations, 2026-Version 3",
+    "invitations": "3500",
+    "crs": "476",
+    "tie_breaking": "May 28, 2026 at 16:55:23 UTC"
+  },
+  {
     "number": "446",
     "date": "September 29, 2026",
     "type": "Canadian Experience Class",
@@ -310,13 +318,5 @@
     "invitations": "3000",
     "crs": "477",
     "tie_breaking": "February 14, 2026 at 20:53:54 UTC"
-  },
-  {
-    "number": "407",
-    "date": "March 31, 2026",
-    "type": "Canadian Experience Class",
-    "invitations": "2250",
-    "crs": "509",
-    "tie_breaking": "March 18, 2026 at 08:27:11 UTC"
   }
 ]
