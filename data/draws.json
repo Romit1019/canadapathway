@@ -1,5 +1,13 @@
 [
   {
+    "number": "454",
+    "date": "November 23, 2026",
+    "type": "Provincial Nominee Program",
+    "invitations": "1999",
+    "crs": "673",
+    "tie_breaking": "July 31, 2026 at 3:50:44 UTC"
+  },
+  {
     "number": "453",
     "date": "October 28, 2026",
     "type": "Transport Occupations, 2026-Version 2",
@@ -310,13 +318,5 @@
     "invitations": "380",
     "crs": "798",
     "tie_breaking": "January 07, 2026 at 05:23:31 UTC"
-  },
-  {
-    "number": "414",
-    "date": "April 29, 2026",
-    "type": "French-Language proficiency 2026-Version 2",
-    "invitations": "4000",
-    "crs": "400",
-    "tie_breaking": "April 07, 2026 at 20:13:59 UTC"
   }
 ]
