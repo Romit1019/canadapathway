@@ -1,5 +1,13 @@
 [
   {
+    "number": "455",
+    "date": "November 25, 2026",
+    "type": "French-Language proficiency 2026-Version 2",
+    "invitations": "6000",
+    "crs": "401",
+    "tie_breaking": "September 12, 2026 at 21:59:55 UTC"
+  },
+  {
     "number": "454",
     "date": "November 23, 2026",
     "type": "Provincial Nominee Program",
@@ -310,13 +318,5 @@
     "invitations": "334",
     "crs": "805",
     "tie_breaking": "October 16, 2025 at 18:16:33 UTC"
-  },
-  {
-    "number": "415",
-    "date": "May 11, 2026",
-    "type": "Provincial Nominee Program",
-    "invitations": "380",
-    "crs": "798",
-    "tie_breaking": "January 07, 2026 at 05:23:31 UTC"
   }
 ]
